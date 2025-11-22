@@ -1,0 +1,93 @@
+property,non_null_count,usage_pct
+file_name,3152,100.0
+relative_path,3152,100.0
+folder,3152,100.0
+Difficulty,1595,50.6
+Company,1242,39.4
+Date,1003,31.82
+Type,689,21.86
+Course,630,19.99
+Module,630,19.99
+Duration,630,19.99
+Status,492,15.61
+Question Link,315,9.99
+Category,276,8.76
+Sub Category,248,7.87
+Created,171,5.43
+difficulty,150,4.76
+Last Reviewed,71,2.25
+Document Type,71,2.25
+Parent SOP,71,2.25
+Next Review,71,2.25
+Owner,71,2.25
+Project,62,1.97
+Topic,56,1.78
+category,51,1.62
+title,51,1.62
+date,51,1.62
+company,51,1.62
+Task left,41,1.3
+Remaining days,41,1.3
+Preview,38,1.21
+Area,37,1.17
+Pattern Group,37,1.17
+Timing,36,1.14
+lab,32,1.02
+Key Functions,30,0.95
+Read,14,0.44
+Tasks,13,0.41
+Column 3,13,0.41
+#,12,0.38
+Link,12,0.38
+copilot-command-context-menu-order,12,0.38
+copilot-command-context-menu-enabled,12,0.38
+copilot-command-slash-enabled,12,0.38
+copilot-command-last-used,12,0.38
+Theme Attribute,12,0.38
+tags,10,0.32
+Regular,9,0.29
+Meal Type,9,0.29
+Reading Progress,8,0.25
+Pattern,8,0.25
+Due Date,8,0.25
+Related to Recipes,7,0.22
+Exercises Relation,7,0.22
+Companies,7,0.22
+Urgency,6,0.19
+Who,6,0.19
+Starting Date,6,0.19
+URL,6,0.19
+Use case,5,0.16
+Title,5,0.16
+#1B5E20,5,0.16
+Stage,5,0.16
+Example,5,0.16
+green,5,0.16
+Main Function,4,0.13
+Functions,4,0.13
+Yearly Goal,4,0.13
+Text,3,0.1
+Reminder,3,0.1
+Day,3,0.1
+Breakpoint,3,0.1
+Device representation,3,0.1
+"A cancelable unit of work, such as one created with the launch() function.",2,0.06
+Area Relation,2,0.06
+Cover,2,0.06
+day-rating,2,0.06
+Department,2,0.06
+copilot-command-model-key,1,0.03
+Store,1,0.03
+Status 5,1,0.03
+Start Date,1,0.03
+Status 3,1,0.03
+Ingredients,1,0.03
+Expected Finish date,1,0.03
+Status 2,1,0.03
+ViewModel responsibilities,1,0.03
+Status 4,1,0.03
+Files & media,1,0.03
+Column 4,1,0.03
+Pages Read,1,0.03
+Sub category,0,0.0
+Description,0,0.0
