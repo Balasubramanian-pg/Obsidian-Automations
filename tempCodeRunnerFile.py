@@ -1,1 +1,0 @@
-"Power-Platform-Solution-Architect-Learning-Path"
