@@ -4,6 +4,8 @@ Hence this code is made with the intent to tag and folder your daily notes on th
 
 Here is an expected output structure which you can change
 <img width="660" height="356" alt="image" src="https://github.com/user-attachments/assets/98845d96-6166-4312-bb09-a43659292651" />
+
+
 You can set this code using windows task scheduler for a daily archive/movement automation. 
 
 The real idea behind this is to actual have your own digital garden with it's related assets under one folder. For instance you went to a cafe and you took a picture and want to remember it and associate it to that specific day, you can now do that by just running this code 
