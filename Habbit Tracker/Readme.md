@@ -10,7 +10,7 @@ Here's what we're building:
 2. **Dashboard** - Interactive DataviewJS with toggleable views
 3. **Charts** - Line graphs, donuts, and streak displays using Chart.js
 
-Let me create the complete solution:---
+Let me create the complete solution:
 
 ## What You're Getting
 
