@@ -9,8 +9,6 @@ I will give you **exact, copy-paste-ready Tracker blocks** that work **as-is**, 
 
 No theory below. This is a **production dashboard**.
 
----
-
 ## Canonical daily note format (must match exactly)
 
 Every daily note in `Daily/` must look like this.
