@@ -421,3 +421,164 @@ Expected one of the following:
 
 ',', /FROM/i, EOF, FLATTEN <value> [AS <name>], GROUP BY <value> [AS <name>], LIMIT <value>, Not a comment, SORT field [ASC/DESC], WHERE <expression>, whitespace
 ```
+
+Ah, classic Dataview syntax errors. Let me fix these:
+
+## Issue 1: Templater Variables in Dataview Queries
+
+The `{{monday}}` and `{{sunday}}` are **Templater syntax**, but Dataview doesn't understand them directly. You need to either:
+
+**Option A: Hardcode the dates when creating the weekly note**
+
+When you create the weekly note with Templater, it should replace the dates first:
+
+```markdown
+# Week <% tp.date.now("YYYY-[W]WW") %>
+
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "Daily Notes"
+WHERE file.day >= date(<% tp.date.now("YYYY-MM-DD", 0, tp.date.now(), "ddd") === "Mon" ? tp.date.now("YYYY-MM-DD") : tp.date.weekday("YYYY-MM-DD", 0, tp.date.now(), "previous monday") %>) 
+  AND file.day <= date(<% tp.date.weekday("YYYY-MM-DD", 0, tp.date.now(), "next sunday") %>)
+SORT file.day ASC
+```
+```
+
+**Option B: Use relative date logic (simpler)**
+
+```markdown
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "Daily Notes"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+SORT file.day ASC
+```
+```
+
+This shows "last 7 days" dynamically.
+
+---
+
+## Issue 2: Comments Not Allowed in Dataview
+
+Dataview doesn't support `/* comments */` inside queries. Remove them:
+
+**Broken:**
+```dataview
+TABLE WITHOUT ID
+  choice(contains(text, "Exercise"), "✅", "❌") as "🏃",
+  choice(contains(text, "Read"), "✅", "❌") as "📚",
+  /* Add all 20 habits */  ← BREAKS HERE
+FROM "Daily Notes"
+```
+
+**Fixed:**
+```dataview
+TABLE WITHOUT ID
+  choice(contains(text, "Exercise"), "✅", "❌") as "🏃",
+  choice(contains(text, "Read"), "✅", "❌") as "📚",
+  choice(contains(text, "Meditate"), "✅", "❌") as "🧘",
+  choice(contains(text, "Journal"), "✅", "❌") as "📝",
+  choice(contains(text, "Sleep"), "✅", "❌") as "🛏️"
+FROM "Daily Notes"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+SORT file.day ASC
+```
+
+---
+
+## Working Weekly Dashboard Template
+
+Here's the corrected full version:
+
+```markdown
+---
+date: <% tp.date.now("YYYY-MM-DD") %>
+week: <% tp.date.now("YYYY-[W]WW") %>
+tags: weekly
+---
+
+# Week <% tp.date.now("YYYY-[W]WW") %>
+
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "Daily Notes"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+SORT file.day ASC
+```
+
+## Habit Breakdown
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  choice(contains(string(file.tasks.text), "Exercise"), "✅", "❌") as "🏃",
+  choice(contains(string(file.tasks.text), "Read"), "✅", "❌") as "📚",
+  choice(contains(string(file.tasks.text), "Meditate"), "✅", "❌") as "🧘",
+  choice(contains(string(file.tasks.text), "Journal"), "✅", "❌") as "📝",
+  choice(contains(string(file.tasks.text), "Sleep"), "✅", "❌") as "🛏️",
+  choice(contains(string(file.tasks.text), "Water"), "✅", "❌") as "💧",
+  choice(contains(string(file.tasks.text), "Healthy meals"), "✅", "❌") as "🥗",
+  choice(contains(string(file.tasks.text), "Deep work"), "✅", "❌") as "🎯"
+FROM "Daily Notes"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+SORT file.day ASC
+```
+
+## Weekly Stats
+
+Total habits tracked: **160**  
+Average daily completion: **<% Math.round((completedThisWeek / 160) * 100) %>%**
+
+```
+
+---
+
+## Key Fixes Applied
+
+1. ✅ Replaced `{{monday}}` / `{{sunday}}` with `date(today) - dur(7 days)` 
+2. ✅ Removed `/* comments */` from Dataview queries
+3. ✅ Used `string(file.tasks.text)` instead of raw `text` (more reliable)
+4. ✅ Used `choice()` function for checkbox visual rendering
+
+---
+
+## Alternative: Use DataviewJS for More Control
+
+If the above still gives issues, switch to **DataviewJS** (more flexible):
+
+```dataviewjs
+const pages = dv.pages('"Daily Notes"')
+    .where(p => p.file.day >= dv.date('today') - dv.duration('7 days'))
+    .sort(p => p.file.day);
+
+dv.table(
+    ["Date", "Total", "Done", "Progress"],
+    pages.map(p => [
+        p.file.link,
+        p.file.tasks.length,
+        p.file.tasks.where(t => t.completed).length,
+        Math.round((p.file.tasks.where(t => t.completed).length / p.file.tasks.length) * 100) + "%"
+    ])
+);
+```
+
+Try the fixed version first. If you still get errors, paste the **exact error message** and I'll debug further.
