@@ -750,3 +750,140 @@ Dataview: Every row during final data extraction failed with an error; first 3:
 
 is this happening because we did not put the habits in yaml or can we pick it from the content of the page like we are doing now?
 ```
+
+Good catch! The `meta()` function doesn't work the way I used it. We can **definitely** pick habits from the page content (no YAML needed), but we need to fix the syntax.
+
+Here's the corrected version:
+
+---
+
+## Fixed Weekly Dashboard (Pure Dataview)
+
+```markdown
+---
+date: <% tp.date.now("YYYY-MM-DD") %>
+week: <% tp.date.now("YYYY-[W]WW") %>
+tags: weekly
+---
+
+# Week <% tp.date.now("YYYY-[W]WW") %>
+
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "2. Daily Reflection"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+SORT file.day ASC
+```
+
+## Habit Breakdown
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(filter(file.tasks, (t) => contains(t.text, "Exercise") AND t.completed)) > 0 as "🏃",
+  length(filter(file.tasks, (t) => contains(t.text, "Read") AND t.completed)) > 0 as "📚",
+  length(filter(file.tasks, (t) => contains(t.text, "Drink water") AND t.completed)) > 0 as "💧",
+  length(filter(file.tasks, (t) => contains(t.text, "Meditate") AND t.completed)) > 0 as "🧘",
+  length(filter(file.tasks, (t) => contains(t.text, "Journal") AND t.completed)) > 0 as "📝",
+  length(filter(file.tasks, (t) => contains(t.text, "Sleep") AND t.completed)) > 0 as "🛏️",
+  length(filter(file.tasks, (t) => contains(t.text, "Healthy meals") AND t.completed)) > 0 as "🥗",
+  length(filter(file.tasks, (t) => contains(t.text, "No phone") AND t.completed)) > 0 as "📱",
+  length(filter(file.tasks, (t) => contains(t.text, "Deep work") AND t.completed)) > 0 as "🎯",
+  length(filter(file.tasks, (t) => contains(t.text, "Social connection") AND t.completed)) > 0 as "👥",
+  length(filter(file.tasks, (t) => contains(t.text, "Tidy space") AND t.completed)) > 0 as "🧹",
+  length(filter(file.tasks, (t) => contains(t.text, "Learn something") AND t.completed)) > 0 as "📖",
+  length(filter(file.tasks, (t) => contains(t.text, "Creative work") AND t.completed)) > 0 as "🎨",
+  length(filter(file.tasks, (t) => contains(t.text, "Strength training") AND t.completed)) > 0 as "💪",
+  length(filter(file.tasks, (t) => contains(t.text, "Walk outside") AND t.completed)) > 0 as "🚶",
+  length(filter(file.tasks, (t) => contains(t.text, "Review goals") AND t.completed)) > 0 as "📊",
+  length(filter(file.tasks, (t) => contains(t.text, "No social media") AND t.completed)) > 0 as "💻",
+  length(filter(file.tasks, (t) => contains(t.text, "No junk food") AND t.completed)) > 0 as "🍎",
+  length(filter(file.tasks, (t) => contains(t.text, "Call family") AND t.completed)) > 0 as "📞",
+  length(filter(file.tasks, (t) => contains(t.text, "Brain training") AND t.completed)) > 0 as "🧠"
+FROM "2. Daily Reflection"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+SORT file.day ASC
+```
+```
+
+---
+
+## What Changed
+
+**Old (broken):**
+```dataview
+choice(meta(filter(file.tasks, (t) => contains(t.text, "Exercise")))[0].completed, "✅", "❌")
+```
+
+**New (working):**
+```dataview
+length(filter(file.tasks, (t) => contains(t.text, "Exercise") AND t.completed)) > 0
+```
+
+**Why this works:**
+- `filter()` returns matching tasks
+- We check if the task contains "Exercise" **AND** is completed
+- `length() > 0` returns `true` (✅) or `false` (❌)
+- Dataview auto-renders `true`/`false` as checkboxes
+
+---
+
+## But Honestly, Use DataviewJS Instead
+
+The DataviewJS version I gave you earlier is **much cleaner** and actually gives you ✅/❌ symbols. Here it is again:
+
+```markdown
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const days = 7;
+
+// Get last 7 days of daily notes
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.file.day && p.file.day >= dv.date('today') - dv.duration(`${days} days`))
+    .sort(p => p.file.day, 'asc');
+
+// Habit list
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+// Build table
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+dv.table(headers, rows);
+```
+```
+
+---
+
+## My Recommendation
+
+**Use the DataviewJS version** because:
+1. ✅ Cleaner syntax
+2. ✅ Easier to debug
+3. ✅ Better visual output (✅/❌ instead of true/false)
+4. ✅ No weird Dataview query limitations
+
+Try the DataviewJS version and let me know if it works. If you get errors, paste them and I'll fix it.
