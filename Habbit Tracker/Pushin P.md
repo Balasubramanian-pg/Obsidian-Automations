@@ -1,3 +1,3 @@
-https://claude.ai/api/2e6b1479-e012-4f79-94df-1f8329fc8028/files/ffc99fc5-5237-4155-be10-78cf44329a0c/preview
+<img width="1130" height="725" alt="image" src="https://github.com/user-attachments/assets/3b667467-0dac-4398-a23d-73ccb4d37412" />
 how do i create something like this in obsidian?
 
