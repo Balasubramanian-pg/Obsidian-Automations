@@ -1463,3 +1463,6 @@ tags: daily
 3. **Refresh the dashboard** (close and reopen the note)
 
 You should then see all 7 days with proper checkmarks. Let me know when you've added the frontmatter and I'll help debug if anything's still broken!
+
+<img width="1568" height="760" alt="image" src="https://github.com/user-attachments/assets/1f5ec51d-7e86-4011-bded-d0247e648d7e" />
+my goat, you are the fucking best, listen unc. I want you to help me figure out two things, when i am creating a weekly dashboard file , it can not be in the dashboard right? it is coming here i need you to help me change that, and in the total right I need you to help me do two things, instead of a box with total, done and progress i want a area chart with gradient shading which plots the Tasks done and a donut chart for progress. (The progress has to be the net average of the progress percentage yeah?)
