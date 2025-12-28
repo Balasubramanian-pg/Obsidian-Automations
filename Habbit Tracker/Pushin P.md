@@ -582,3 +582,37 @@ dv.table(
 ```
 
 Try the fixed version first. If you still get errors, paste the **exact error message** and I'll debug further.
+
+<img width="431" height="726" alt="image" src="https://github.com/user-attachments/assets/b2080ea8-defe-4dcf-9ea4-326b7a99508e" />
+i know where you are going wrong
+my journals are here,  and here is the data points we are tracking
+---
+date: 2025-11-20
+tags: daily
+---
+# {{date:MMMM DD, YYYY}}
+## Habits
+- [x] 🏃 Exercise (30 min)
+- [x] 📚 Read (20 min)
+- [x] 💧 Drink water (8 glasses)
+- [ ] 🧘 Meditate (10 min)
+- [x] 📝 Journal
+- [ ] 🛏️ Sleep by 11pm
+- [x] 🥗 Healthy meals (3/3)
+- [ ] 📱 No phone before bed
+- [x] 🎯 Deep work (2 hours)
+- [ ] 👥 Social connection
+- [x] 🧹 Tidy space
+- [ ] 📖 Learn something new
+- [x] 🎨 Creative work
+- [ ] 💪 Strength training
+- [x] 🚶 Walk outside
+- [x] 📊 Review goals
+- [ ] 💻 No social media scrolling
+- [x] 🍎 No junk food
+- [ ] 📞 Call family/friend
+- [x] 🧠 Brain training
+## Notes
+<!-- Reflection, wins, struggles -->
+
+can you now fix the weekly dashboard for me dear
