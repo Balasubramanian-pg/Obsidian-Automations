@@ -1079,3 +1079,10 @@ pagesWithDates.forEach(p => {
 ```
 
 Run this and **paste the output**. That'll tell us exactly what's wrong.
+
+<img width="1568" height="517" alt="image" src="https://github.com/user-attachments/assets/3060ffa2-3f15-401a-81d9-7bffa0cbe553" />
+<img width="702" height="843" alt="image" src="https://github.com/user-attachments/assets/08c8066a-fae8-4b4e-965f-29d93d3ad9fd" />
+
+i did templater, i ensured enable javascript queries and still this is happening, what else can be doing wrong?
+
+Are they named like 20-11-2025.md? yes they are, should i change this? I ran your query and this output is coming
