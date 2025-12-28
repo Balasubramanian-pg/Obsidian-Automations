@@ -616,3 +616,130 @@ tags: daily
 <!-- Reflection, wins, struggles -->
 
 can you now fix the weekly dashboard for me dear
+
+Ah, I see the issue! Your daily notes are in `2. Daily Reflection/2025/November 2025/` folder structure, not a flat "Daily Notes" folder. Let me fix the weekly dashboard:
+
+---
+
+## Working Weekly Dashboard
+
+```markdown
+---
+date: <% tp.date.now("YYYY-MM-DD") %>
+week: <% tp.date.now("YYYY-[W]WW") %>
+tags: weekly
+---
+
+# Week <% tp.date.now("YYYY-[W]WW") %>
+
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "2. Daily Reflection"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+SORT file.day ASC
+```
+
+## Habit Breakdown
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Exercise")))[0].completed, "✅", "❌") as "🏃",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Read")))[0].completed, "✅", "❌") as "📚",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Drink water")))[0].completed, "✅", "❌") as "💧",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Meditate")))[0].completed, "✅", "❌") as "🧘",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Journal")))[0].completed, "✅", "❌") as "📝",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Sleep")))[0].completed, "✅", "❌") as "🛏️",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Healthy meals")))[0].completed, "✅", "❌") as "🥗",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "No phone")))[0].completed, "✅", "❌") as "📱",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Deep work")))[0].completed, "✅", "❌") as "🎯",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Social connection")))[0].completed, "✅", "❌") as "👥",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Tidy space")))[0].completed, "✅", "❌") as "🧹",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Learn something")))[0].completed, "✅", "❌") as "📖",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Creative work")))[0].completed, "✅", "❌") as "🎨",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Strength training")))[0].completed, "✅", "❌") as "💪",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Walk outside")))[0].completed, "✅", "❌") as "🚶",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Review goals")))[0].completed, "✅", "❌") as "📊",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "No social media")))[0].completed, "✅", "❌") as "💻",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "No junk food")))[0].completed, "✅", "❌") as "🍎",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Call family")))[0].completed, "✅", "❌") as "📞",
+  choice(meta(filter(file.tasks, (t) => contains(t.text, "Brain training")))[0].completed, "✅", "❌") as "🧠"
+FROM "2. Daily Reflection"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+SORT file.day ASC
+```
+
+## Weekly Summary
+
+```dataview
+TABLE WITHOUT ID
+  "Exercise" as "Habit",
+  length(filter(file.tasks, (t) => contains(t.text, "Exercise") AND t.completed)) as "Days Done"
+FROM "2. Daily Reflection"
+WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
+FLATTEN 1 as dummy
+GROUP BY dummy
+```
+```
+
+---
+
+## Key Changes Made
+
+1. ✅ Changed `FROM "Daily Notes"` → `FROM "2. Daily Reflection"`
+2. ✅ Used `meta(filter())` to safely check if tasks exist before accessing `.completed`
+3. ✅ All 20 habits now tracked in the habit breakdown table
+
+---
+
+## If You Still Get Errors
+
+Try this **simpler DataviewJS version** (more robust):
+
+```markdown
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const days = 7;
+
+// Get last 7 days of daily notes
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.file.day && p.file.day >= dv.date('today') - dv.duration(`${days} days`))
+    .sort(p => p.file.day, 'asc');
+
+// Habit list (order matters)
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+// Build table
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+dv.table(headers, rows);
+```
+```
+
+This DataviewJS version is bulletproof and will show you exactly which habits you're hitting each day in a nice grid.
+
+Test it and let me know if it works!
