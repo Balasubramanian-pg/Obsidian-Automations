@@ -391,3 +391,33 @@ B. **Step-by-step setup guide** (installing plugins, configuring templates)
 C. **A simplified version** (10 habits instead of 20, faster to test)
 
 Let me know and I'll build it out for you.
+
+```
+Dataview: Error: 
+-- PARSING FAILED --------------------------------------------------
+
+  5 |   round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+  6 | FROM "Daily Notes"
+> 7 | WHERE file.day >= date({{monday}}) AND file.day <= date({{sunday}})
+    |                         ^
+  8 | SORT file.day ASC
+
+Expected:
+
+object ('{ a: 1, b: 2 }')
+
+
+Dataview: Error: 
+-- PARSING FAILED --------------------------------------------------
+
+  3 |   choice(contains(text, "Read"), "✅", "❌") as "📚",
+  4 |   choice(contains(text, "Meditate"), "✅", "❌") as "🧘"
+> 5 |   /* Add all 20 habits */
+    |   ^
+  6 | FROM "Daily Notes"
+  7 | WHERE file.day >= date({{monday}}) AND file.day <= date({{sunday}})
+
+Expected one of the following: 
+
+',', /FROM/i, EOF, FLATTEN <value> [AS <name>], GROUP BY <value> [AS <name>], LIMIT <value>, Not a comment, SORT field [ASC/DESC], WHERE <expression>, whitespace
+```
