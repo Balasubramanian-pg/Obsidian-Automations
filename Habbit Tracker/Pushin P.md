@@ -1773,4 +1773,20 @@ const folder = "2. Daily Reflection/2025";
 **Option B:** Use Chart.js via HTML (no plugin needed)  
 **Option C:** Stick with table but add summary stats
 
-Let me know which way you wanna go and I'll polish it up! 🚀
+Let me know which way you wanna go and I'll polish it up! 
+
+why is this error 
+
+```
+Evaluation Error: TypeError: dailyStats.reduce is not a function
+    at eval (eval at <anonymous> (plugin:dataview), <anonymous>:31:29)
+    at DataviewInlineApi.eval (plugin:dataview:19027:16)
+    at evalInContext (plugin:dataview:19028:7)
+    at asyncEvalInContext (plugin:dataview:19038:32)
+    at DataviewJSRenderer.render (plugin:dataview:19064:19)
+    at DataviewJSRenderer.onload (plugin:dataview:18606:14)
+    at e.load (app://obsidian.md/app.js:1:689289)
+    at DataviewApi.executeJs (plugin:dataview:19607:18)
+    at DataviewPlugin.dataviewjs (plugin:dataview:20537:18)
+    at eval (plugin:dataview:20415:124)
+```
