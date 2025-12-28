@@ -887,3 +887,7 @@ dv.table(headers, rows);
 4. ✅ No weird Dataview query limitations
 
 Try the DataviewJS version and let me know if it works. If you get errors, paste them and I'll fix it.
+
+<img width="1568" height="566" alt="image" src="https://github.com/user-attachments/assets/0b5b158c-0da4-42eb-8c0a-317d50437845" />
+nah bro, this is not working  come one do something
+
