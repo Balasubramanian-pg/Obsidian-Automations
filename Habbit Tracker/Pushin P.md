@@ -2009,3 +2009,9 @@ dv.paragraph(`Is array? ${Array.isArray(pages)}`);
 ```
 
 Paste the output and I'll fix it. Should work now though! 🎯
+
+<img width="1372" height="883" alt="image" src="https://github.com/user-attachments/assets/1e607fa5-1dc4-478d-addc-226d705ed6db" />
+
+bro what is going on? you need to lock in and fix this shit
+
+
