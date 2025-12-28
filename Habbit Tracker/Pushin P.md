@@ -1466,3 +1466,311 @@ You should then see all 7 days with proper checkmarks. Let me know when you've a
 
 <img width="1568" height="760" alt="image" src="https://github.com/user-attachments/assets/1f5ec51d-7e86-4011-bded-d0247e648d7e" />
 my goat, you are the fucking best, listen unc. I want you to help me figure out two things, when i am creating a weekly dashboard file , it can not be in the dashboard right? it is coming here i need you to help me change that, and in the total right I need you to help me do two things, instead of a box with total, done and progress i want a area chart with gradient shading which plots the Tasks done and a donut chart for progress. (The progress has to be the net average of the progress percentage yeah?)
+
+**LET'S FUCKING GO!** 🎯 You're crushing it. Now let's make this dashboard *chef's kiss*.
+
+---
+
+## Issue 1: Weekly Dashboard Appearing in Query
+
+**Problem:** The "Weekly Dashboard" file itself shows up in the table (row 7 with 0 tasks).
+
+**Fix:** Exclude dashboard files from the query.
+
+---
+
+## Issue 2: Replace Table with Charts
+
+You want:
+1. **Area chart** (gradient) → Tasks completed over the week
+2. **Donut chart** → Average weekly progress percentage
+
+---
+
+## Updated Weekly Dashboard Code
+
+```markdown
+---
+date: 2025-11-28
+week: 2025-W48
+tags: weekly
+exclude-from-reports: true
+---
+
+# Week 2025-W48
+
+## Weekly Overview
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+// Get daily notes (exclude dashboard files)
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Weekly Dashboard") &&
+        !p.file.name.includes("Monthly Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+// Calculate stats
+const dailyStats = pages.map(p => {
+    const total = p.file.tasks.length;
+    const done = p.file.tasks.filter(t => t.completed).length;
+    const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+    return {
+        date: p.date.toFormat("dd-MM"),
+        done: done,
+        total: total,
+        progress: progress
+    };
+});
+
+// Calculate weekly average
+const avgProgress = dailyStats.length > 0 
+    ? Math.round(dailyStats.reduce((sum, d) => sum + d.progress, 0) / dailyStats.length)
+    : 0;
+
+const totalDone = dailyStats.reduce((sum, d) => sum + d.done, 0);
+const totalTasks = dailyStats.reduce((sum, d) => sum + d.total, 0);
+
+// Display summary cards
+dv.header(3, "📊 Week Summary");
+dv.paragraph(`
+**Total Habits Completed:** ${totalDone} / ${totalTasks}  
+**Average Daily Progress:** ${avgProgress}%  
+**Best Day:** ${dailyStats.reduce((best, d) => d.progress > best.progress ? d : best, {progress: 0}).date || 'N/A'} (${Math.max(...dailyStats.map(d => d.progress))}%)
+`);
+
+// Area Chart - Tasks Completed
+dv.header(3, "📈 Daily Tasks Completed");
+const chartData = dailyStats.map(d => `${d.date}: ${d.done}`).join(', ');
+dv.paragraph(`\`\`\`chart
+type: line
+labels: [${dailyStats.map(d => `"${d.date}"`).join(', ')}]
+series:
+  - title: Tasks Done
+    data: [${dailyStats.map(d => d.done).join(', ')}]
+tension: 0.4
+width: 100%
+labelColors: true
+fill: true
+beginAtZero: true
+\`\`\``);
+
+// Progress Donut Chart
+dv.header(3, "🎯 Average Weekly Progress");
+dv.paragraph(`\`\`\`chart
+type: doughnut
+labels: ["Completed", "Remaining"]
+series:
+  - title: Progress
+    data: [${avgProgress}, ${100 - avgProgress}]
+width: 50%
+labelColors: true
+\`\`\``);
+```
+
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+dv.table(headers, rows);
+```
+```
+
+---
+
+## But Wait... Charts Plugin Needed!
+
+Obsidian's Dataview **doesn't render charts natively**. You need the **Obsidian Charts** plugin.
+
+### Install Charts Plugin:
+1. Settings → Community Plugins
+2. Browse → Search "**Obsidian Charts**"
+3. Install & Enable
+
+---
+
+## Alternative: Use Canvas API (No Plugin)
+
+If you don't want to install Charts, use **HTML + Chart.js** directly:
+
+```markdown
+---
+date: 2025-11-28
+week: 2025-W48
+tags: weekly
+---
+
+# Week 2025-W48
+
+## Weekly Overview
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+const dailyStats = pages.map(p => {
+    const total = p.file.tasks.length;
+    const done = p.file.tasks.filter(t => t.completed).length;
+    const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+    return {
+        date: p.date.toFormat("MMM dd"),
+        done: done,
+        progress: progress
+    };
+});
+
+const avgProgress = dailyStats.length > 0 
+    ? Math.round(dailyStats.reduce((sum, d) => sum + d.progress, 0) / dailyStats.length)
+    : 0;
+
+// Summary stats
+dv.header(3, "📊 Week Summary");
+dv.paragraph(`**Average Progress:** ${avgProgress}% | **Best Day:** ${Math.max(...dailyStats.map(d => d.progress))}%`);
+
+// Area Chart HTML
+const chartHtml = `
+<div style="width: 100%; height: 300px;">
+    <canvas id="weeklyChart"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('weeklyChart');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ${JSON.stringify(dailyStats.map(d => d.date))},
+        datasets: [{
+            label: 'Tasks Completed',
+            data: ${JSON.stringify(dailyStats.map(d => d.done))},
+            fill: true,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+`;
+
+dv.paragraph(chartHtml);
+
+// Donut Chart
+const donutHtml = `
+<div style="width: 300px; height: 300px; margin: 0 auto;">
+    <canvas id="progressDonut"></canvas>
+</div>
+<script>
+const ctx2 = document.getElementById('progressDonut');
+new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+        labels: ['Completed', 'Remaining'],
+        datasets: [{
+            data: [${avgProgress}, ${100 - avgProgress}],
+            backgroundColor: ['#4ade80', '#374151']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+`;
+
+dv.paragraph(donutHtml);
+```
+```
+
+---
+
+## File Organization Fix
+
+**Move Weekly Dashboards to separate folder:**
+
+Create folder structure:
+```
+2. Daily Reflection/
+├── 2025/
+│   ├── November 2025/
+│   │   ├── 20-11-2025.md
+│   │   ├── 21-11-2025.md
+│   │   └── ...
+│   └── December 2025/
+└── Dashboards/
+    ├── Weekly/
+    │   └── Week 2025-W48.md
+    └── Monthly/
+        └── November 2025.md
+```
+
+Then update query to:
+```javascript
+const folder = "2. Daily Reflection/2025";
+```
+
+---
+
+## Which Route You Taking?
+
+**Option A:** Install Obsidian Charts plugin (cleanest)  
+**Option B:** Use Chart.js via HTML (no plugin needed)  
+**Option C:** Stick with table but add summary stats
+
+Let me know which way you wanna go and I'll polish it up! 🚀
