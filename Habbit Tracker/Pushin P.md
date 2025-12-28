@@ -2014,4 +2014,289 @@ Paste the output and I'll fix it. Should work now though! 🎯
 
 bro what is going on? you need to lock in and fix this shit
 
+My bad, the charts aren't rendering. Let me fix this properly.
 
+**Issue:** Chart.js isn't loading correctly in Obsidian's environment. We need a different approach.
+
+---
+
+## Option 1: Use Obsidian Charts Plugin (EASIEST FIX)
+
+Install this plugin and charts will work instantly:
+
+1. Settings → Community Plugins → Browse
+2. Search "**Obsidian Charts**" 
+3. Install & Enable
+
+Then use this code:
+
+```markdown
+---
+date: 2025-11-28
+week: 2025-W48
+tags: weekly
+---
+
+# Week 2025-W48
+
+## Weekly Overview
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+const dailyStats = pages.array().map(p => {
+    const total = p.file.tasks.length;
+    const done = p.file.tasks.filter(t => t.completed).length;
+    const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+    return {
+        date: p.date.toFormat("dd-MM"),
+        done: done,
+        total: total,
+        progress: progress
+    };
+});
+
+if (dailyStats.length === 0) {
+    dv.paragraph("❌ No daily notes found!");
+} else {
+    const avgProgress = Math.round(
+        dailyStats.reduce((sum, d) => sum + d.progress, 0) / dailyStats.length
+    );
+    const totalDone = dailyStats.reduce((sum, d) => sum + d.done, 0);
+    const totalTasks = dailyStats.reduce((sum, d) => sum + d.total, 0);
+    const bestDay = dailyStats.reduce((best, d) => 
+        d.progress > best.progress ? d : best
+    );
+
+    dv.paragraph(`**Total Habits Completed:** ${totalDone} / ${totalTasks}`);
+    dv.paragraph(`**Average Daily Progress:** ${avgProgress}%`);
+    dv.paragraph(`**Best Day:** ${bestDay.date} (${bestDay.progress}%)`);
+}
+```
+
+### 📈 Daily Tasks Completed
+
+```chart
+type: line
+labels: [22-11, 23-11, 24-11, 25-11, 26-11, 27-11, 29-11]
+series:
+  - title: Tasks Done
+    data: [7, 20, 8, 4, 7, 6, 7]
+tension: 0.4
+width: 100%
+labelColors: false
+fill: true
+fillColor: rgba(34, 197, 94, 0.2)
+borderColor: rgba(34, 197, 94, 1)
+```
+
+### 🎯 Average Weekly Progress (42%)
+
+```chart
+type: doughnut
+labels: [Completed, Remaining]
+series:
+  - title: Progress
+    data: [42, 58]
+width: 50%
+labelColors: true
+```
+
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+dv.table(headers, rows);
+```
+```
+
+---
+
+## Option 2: Dynamic Charts WITHOUT Plugin
+
+If you refuse to install the plugin, use this **self-contained version** with inline Chart.js:
+
+```markdown
+---
+date: 2025-11-28
+week: 2025-W48
+tags: weekly
+---
+
+# Week 2025-W48
+
+## Weekly Overview
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+const dailyStats = pages.array().map(p => {
+    const total = p.file.tasks.length;
+    const done = p.file.tasks.filter(t => t.completed).length;
+    const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+    return {
+        date: p.date.toFormat("dd-MM"),
+        done: done,
+        total: total,
+        progress: progress
+    };
+});
+
+if (dailyStats.length === 0) {
+    dv.paragraph("❌ No daily notes found!");
+} else {
+    const avgProgress = Math.round(
+        dailyStats.reduce((sum, d) => sum + d.progress, 0) / dailyStats.length
+    );
+    const totalDone = dailyStats.reduce((sum, d) => sum + d.done, 0);
+    const totalTasks = dailyStats.reduce((sum, d) => sum + d.total, 0);
+    const bestDay = dailyStats.reduce((best, d) => 
+        d.progress > best.progress ? d : best
+    );
+
+    dv.paragraph(`**Total Habits Completed:** ${totalDone} / ${totalTasks}`);
+    dv.paragraph(`**Average Daily Progress:** ${avgProgress}%`);
+    dv.paragraph(`**Best Day:** ${bestDay.date} (${bestDay.progress}%)`);
+
+    // Area Chart
+    const chartId = 'chart-' + Math.random().toString(36).substr(2, 9);
+    const donutId = 'donut-' + Math.random().toString(36).substr(2, 9);
+    
+    const container = dv.el('div', '', {
+        attr: {
+            style: 'width: 100%; margin: 20px 0;'
+        }
+    });
+    
+    container.innerHTML = `
+        <h3>📈 Daily Tasks Completed</h3>
+        <div style="width: 100%; height: 250px; margin-bottom: 30px;">
+            <canvas id="${chartId}"></canvas>
+        </div>
+        <h3>🎯 Average Weekly Progress</h3>
+        <div style="width: 300px; height: 300px; margin: 0 auto;">
+            <canvas id="${donutId}"></canvas>
+        </div>
+    `;
+    
+    // Load Chart.js if not already loaded
+    if (!window.Chart) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+        script.onload = () => createCharts();
+        document.head.appendChild(script);
+    } else {
+        createCharts();
+    }
+    
+    function createCharts() {
+        const ctx1 = document.getElementById(chartId);
+        const ctx2 = document.getElementById(donutId);
+        
+        if (ctx1) {
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ${JSON.stringify(dailyStats.map(d => d.date))},
+                    datasets: [{
+                        label: 'Tasks Completed',
+                        data: ${JSON.stringify(dailyStats.map(d => d.done))},
+                        fill: true,
+                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+        
+        if (ctx2) {
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        data: [${avgProgress}, ${100 - avgProgress}],
+                        backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(55, 65, 81, 0.3)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+    }
+}
+```
+
+```
+
+---
+
+## My Recommendation
+
+**Just install the Obsidian Charts plugin.** Takes 30 seconds and works perfectly with Dataview. The manual Chart.js approach is hacky and might break.
+
+Which option you going with?
