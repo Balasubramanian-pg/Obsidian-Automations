@@ -1086,3 +1086,186 @@ Run this and **paste the output**. That'll tell us exactly what's wrong.
 i did templater, i ensured enable javascript queries and still this is happening, what else can be doing wrong?
 
 Are they named like 20-11-2025.md? yes they are, should i change this? I ran your query and this output is coming
+
+**FOUND IT!** 
+
+Your daily notes are named `20-11-2025` (DD-MM-YYYY), but Dataview is interpreting the dates **completely wrong**:
+
+Look at this mess:
+- `20-11-2025` → Dataview thinks it's `2025-11-20` ✅ (correct by accident)
+- `25-12-25` → Dataview thinks it's `2025-12-25` ✅ (correct)
+- But the **file.day is parsing incorrectly** because your filename format is ambiguous
+
+---
+
+## The Problem
+
+Dataview needs dates in **ISO format: YYYY-MM-DD** to work reliably.
+
+Your current format `DD-MM-YYYY` is causing date parsing chaos.
+
+---
+
+## Solution: Two Options
+
+### Option 1: Rename Your Files (Recommended)
+
+Change your daily note naming format from:
+- ❌ `20-11-2025` (DD-MM-YYYY)
+- ✅ `2025-11-20` (YYYY-MM-DD)
+
+**To do this in Obsidian:**
+1. Settings → Daily Notes → Date format: `YYYY-MM-DD`
+2. For existing files, you'll need to rename them manually or use a bulk rename tool
+
+---
+
+### Option 2: Add `date:` to Frontmatter (Easier Short-term Fix)
+
+Keep your filenames as-is, but **ensure every daily note has this at the top**:
+
+```markdown
+---
+date: 2025-11-20
+tags: daily
+---
+
+# {{date:MMMM DD, YYYY}}
+...
+```
+
+The `date:` in frontmatter **overrides** Dataview's filename parsing.
+
+---
+
+## Updated Templater Daily Note Template
+
+Use this to auto-generate the correct frontmatter:
+
+```markdown
+---
+date: <% tp.date.now("YYYY-MM-DD") %>
+tags: daily
+---
+
+# <% tp.date.now("MMMM DD, YYYY") %>
+
+## Habits
+- [ ] 🏃 Exercise (30 min)
+- [ ] 📚 Read (20 min)
+- [ ] 💧 Drink water (8 glasses)
+- [ ] 🧘 Meditate (10 min)
+- [ ] 📝 Journal
+- [ ] 🛏️ Sleep by 11pm
+- [ ] 🥗 Healthy meals (3/3)
+- [ ] 📱 No phone before bed
+- [ ] 🎯 Deep work (2 hours)
+- [ ] 👥 Social connection
+- [ ] 🧹 Tidy space
+- [ ] 📖 Learn something new
+- [ ] 🎨 Creative work
+- [ ] 💪 Strength training
+- [ ] 🚶 Walk outside
+- [ ] 📊 Review goals
+- [ ] 💻 No social media scrolling
+- [ ] 🍎 No junk food
+- [ ] 📞 Call family/friend
+- [ ] 🧠 Brain training
+
+## Notes
+<!-- Reflection, wins, struggles -->
+```
+
+---
+
+## Quick Test: Add Frontmatter to One Note
+
+Pick `25-12-2025` (today) and add this at the very top:
+
+```markdown
+---
+date: 2025-12-25
+tags: daily
+---
+```
+
+Then re-run the weekly dashboard query. If it **suddenly shows 20 tasks and checkmarks**, you've confirmed the issue.
+
+---
+
+## Updated Weekly Dashboard (Using Frontmatter Dates)
+
+```markdown
+---
+date: 2025-12-28
+week: 2025-W52
+tags: weekly
+---
+
+# Week 2025-W52
+
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "2. Daily Reflection"
+WHERE date >= date(2025-12-22) AND date <= date(2025-12-28)
+SORT date ASC
+```
+
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-12-22");
+const endDate = dv.date("2025-12-28");
+
+// Get pages using frontmatter date field
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.date && p.date >= startDate && p.date <= endDate)
+    .sort(p => p.date, 'asc');
+
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+if (rows.length === 0) {
+    dv.paragraph("❌ No daily notes found for this week!");
+    dv.paragraph(`Looking for dates between ${startDate} and ${endDate}`);
+} else {
+    dv.table(headers, rows);
+}
+```
+```
+
+**Key change:** Now using `p.date` (frontmatter) instead of `p.file.day` (filename parsing).
+
+---
+
+## Do This Now
+
+1. **Add `date:` frontmatter to your existing daily notes** (or at least this week's notes)
+2. **Update your daily note template** to auto-generate the frontmatter
+3. **Update the weekly dashboard** to use `p.date` instead of `p.file.day`
+
+Try that and let me know if you get green checkmarks! 🎯
