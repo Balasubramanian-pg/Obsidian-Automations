@@ -891,3 +891,191 @@ Try the DataviewJS version and let me know if it works. If you get errors, paste
 <img width="1568" height="566" alt="image" src="https://github.com/user-attachments/assets/0b5b158c-0da4-42eb-8c0a-317d50437845" />
 nah bro, this is not working  come one do something
 
+Alright, let's fix this properly. Two issues:
+
+1. **Templater syntax isn't rendering** (the title shows raw code)
+2. **Query is looking at the wrong date** (25-12-25 instead of current week)
+
+---
+
+## Step 1: Check Your Setup
+
+**Is Templater installed and enabled?**
+- Settings → Community Plugins → Make sure "Templater" is installed AND enabled
+- Settings → Templater → Set a "Template folder location" (e.g., `Templates/`)
+
+---
+
+## Step 2: Corrected Weekly Dashboard Template
+
+Save this as a **template file** (e.g., `Templates/Weekly Dashboard.md`):
+
+```markdown
+---
+date: <% tp.date.now("YYYY-MM-DD") %>
+week: <% tp.date.now("YYYY-[W]WW") %>
+tags: weekly
+---
+
+# Week <% tp.date.now("YYYY-[W]WW") %>
+
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "2. Daily Reflection"
+WHERE file.day >= date(2025-12-22) AND file.day <= date(2025-12-28)
+SORT file.day ASC
+```
+
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = "2025-12-22"; // Monday of this week
+const endDate = "2025-12-28";   // Sunday of this week
+
+// Get this week's daily notes
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.file.day && p.file.day >= dv.date(startDate) && p.file.day <= dv.date(endDate))
+    .sort(p => p.file.day, 'asc');
+
+// Habit list
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+// Build table
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+if (rows.length === 0) {
+    dv.paragraph("No daily notes found for this week. Check your date range!");
+} else {
+    dv.table(headers, rows);
+}
+```
+```
+
+---
+
+## Step 3: Create the Weekly Note PROPERLY
+
+**Don't just copy-paste the template.** Instead:
+
+1. **Open Command Palette** (`Ctrl/Cmd + P`)
+2. Type: **"Templater: Create new note from template"**
+3. Select your `Weekly Dashboard` template
+4. Templater will **replace the `<% %>` codes** with actual dates
+
+---
+
+## Alternative: Manual Version (No Templater Needed)
+
+If Templater is being a pain, just hardcode the dates each week:
+
+```markdown
+---
+date: 2025-12-28
+week: 2025-W52
+tags: weekly
+---
+
+# Week 2025-W52
+
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "2. Daily Reflection"
+WHERE file.day >= date(2025-12-22) AND file.day <= date(2025-12-28)
+SORT file.day ASC
+```
+
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = "2025-12-22";
+const endDate = "2025-12-28";
+
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.file.day && p.file.day >= dv.date(startDate) && p.file.day <= dv.date(endDate))
+    .sort(p => p.file.day, 'asc');
+
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+if (rows.length === 0) {
+    dv.paragraph("❌ No daily notes found. Check folder path and dates!");
+} else {
+    dv.table(headers, rows);
+}
+```
+```
+
+---
+
+## Debugging Checklist
+
+If it **still** shows "false false false":
+
+1. **Check DataviewJS is enabled:**
+   - Settings → Dataview → Enable "Enable JavaScript Queries"
+
+2. **Check your daily note filenames:**
+   - Are they named like `20-11-2025.md`? 
+   - Dataview needs the `date:` in frontmatter OR the filename to be `YYYY-MM-DD` format
+
+3. **Add this debug query to see what Dataview finds:**
+
+```dataviewjs
+dv.paragraph("Looking in folder: 2. Daily Reflection");
+const allPages = dv.pages('"2. Daily Reflection"');
+dv.paragraph(`Found ${allPages.length} total pages`);
+const pagesWithDates = allPages.where(p => p.file.day);
+dv.paragraph(`Pages with dates: ${pagesWithDates.length}`);
+pagesWithDates.forEach(p => {
+    dv.paragraph(`- ${p.file.name}: ${p.file.day}, Tasks: ${p.file.tasks.length}`);
+});
+```
+
+Run this and **paste the output**. That'll tell us exactly what's wrong.
