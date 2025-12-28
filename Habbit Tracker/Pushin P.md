@@ -1269,3 +1269,7 @@ if (rows.length === 0) {
 3. **Update the weekly dashboard** to use `p.date` instead of `p.file.day`
 
 Try that and let me know if you get green checkmarks! 🎯
+
+<img width="1568" height="571" alt="image" src="https://github.com/user-attachments/assets/333266da-6151-41fe-b793-8a78ea6aaf2d" />
+okay so we need to fix this only today is coming correctly, atleast today is coming correct
+
