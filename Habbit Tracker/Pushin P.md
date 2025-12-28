@@ -2300,3 +2300,238 @@ if (dailyStats.length === 0) {
 **Just install the Obsidian Charts plugin.** Takes 30 seconds and works perfectly with Dataview. The manual Chart.js approach is hacky and might break.
 
 Which option you going with?
+
+
+
+The error `SyntaxError: Unexpected token '{'` occurs because you are using template string syntax (`${...}`) inside standard JavaScript code.
+
+Template syntax is only required when building a text string (like HTML). When defining the `Chart.js` configuration objects, you are writing actual JavaScript, so you should pass the variables and arrays directly.
+
+Additionally, `pages.array()` is not a valid Dataview function; it should simply be mapped or converted using `.values`.
+
+Here is the fixed code for your **Weekly Overview** block.
+
+### Weekly Overview
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+// 1. Fetch pages
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+// 2. Calculate Stats
+// We use .values to ensure dailyStats is a standard JS Array, not a Dataview DataArray
+const dailyStats = pages.map(p => {
+    const total = p.file.tasks.length;
+    const done = p.file.tasks.filter(t => t.completed).length;
+    const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+    return {
+        date: p.date.toFormat("dd-MM"),
+        done: done,
+        total: total,
+        progress: progress
+    };
+}).values;
+
+if (dailyStats.length === 0) {
+    dv.paragraph("❌ No daily notes found!");
+} else {
+    // Calculate aggregates
+    const avgProgress = Math.round(
+        dailyStats.reduce((sum, d) => sum + d.progress, 0) / dailyStats.length
+    );
+    const totalDone = dailyStats.reduce((sum, d) => sum + d.done, 0);
+    const totalTasks = dailyStats.reduce((sum, d) => sum + d.total, 0);
+    const bestDay = dailyStats.reduce((best, d) => 
+        d.progress > best.progress ? d : best
+    );
+
+    // Render Text Stats
+    dv.paragraph(`**Total Habits Completed:** ${totalDone} / ${totalTasks}`);
+    dv.paragraph(`**Average Daily Progress:** ${avgProgress}%`);
+    dv.paragraph(`**Best Day:** ${bestDay.date} (${bestDay.progress}%)`);
+
+    // Generate unique IDs for charts
+    const chartId = 'chart-' + Math.random().toString(36).substr(2, 9);
+    const donutId = 'donut-' + Math.random().toString(36).substr(2, 9);
+    
+    const container = dv.el('div', '', {
+        attr: {
+            style: 'width: 100%; margin: 20px 0;'
+        }
+    });
+    
+    // HTML Structure
+    container.innerHTML = `
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+            
+            .charts-container {
+                display: grid;
+                grid-template-columns: 1fr 400px;
+                gap: 40px;
+                align-items: center;
+                font-family: 'Outfit', sans-serif;
+            }
+            
+            .chart-wrapper {
+                width: 100%;
+                height: 300px;
+            }
+            
+            .donut-wrapper {
+                width: 100%;
+                height: 300px;
+                position: relative;
+            }
+            
+            .donut-center-text {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                font-family: 'Outfit', sans-serif;
+                pointer-events: none;
+            }
+            
+            .donut-percentage {
+                font-size: 48px;
+                font-weight: 700;
+                color: rgba(46, 140, 252, 1);
+                line-height: 1;
+            }
+            
+            .donut-label {
+                font-size: 14px;
+                font-weight: 500;
+                color: rgba(156, 163, 175, 1);
+                margin-top: 8px;
+            }
+            
+            @media (max-width: 768px) {
+                .charts-container {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        
+        <div class="charts-container">
+            <div>
+                <h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 16px;">📈 Daily Tasks Completed</h3>
+                <div class="chart-wrapper">
+                    <canvas id="${chartId}"></canvas>
+                </div>
+            </div>
+            
+            <div>
+                <h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 16px;">🎯 Average Weekly Progress</h3>
+                <div class="donut-wrapper">
+                    <canvas id="${donutId}"></canvas>
+                    <div class="donut-center-text">
+                        <div class="donut-percentage">${avgProgress}%</div>
+                        <div class="donut-label">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Load Chart.js and render
+    if (!window.Chart) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+        script.onload = () => createCharts();
+        document.head.appendChild(script);
+    } else {
+        createCharts();
+    }
+    
+    function createCharts() {
+        const ctx1 = document.getElementById(chartId);
+        const ctx2 = document.getElementById(donutId);
+        
+        if (ctx1) {
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    // FIX: Pass direct arrays, remove ${} and JSON.stringify
+                    labels: dailyStats.map(d => d.date),
+                    datasets: [{
+                        label: 'Tasks Completed',
+                        data: dailyStats.map(d => d.done),
+                        fill: true,
+                        backgroundColor: 'rgba(215, 224, 255, 0.8)',
+                        borderColor: 'rgba(46, 140, 252, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'rgba(46, 140, 252, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false }
+                    },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { font: { family: 'Outfit', size: 12 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Outfit', size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        if (ctx2) {
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        // FIX: Pass direct variables, remove ${}
+                        data: [avgProgress, 100 - avgProgress],
+                        backgroundColor: [
+                            'rgba(46, 140, 252, 0.8)',
+                            'rgba(233, 243, 255, 0.8)'
+                        ],
+                        borderWidth: 0,
+                        cutout: '75%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        }
+    }
+}
+```
+
+### Key Changes Made:
+1.  **Removed `${}` inside Chart Config:** In your original code, you had `labels: ${JSON.stringify(...)}`. This is invalid syntax inside a standard JavaScript function. It has been changed to `labels: dailyStats.map(...)`.
+2.  **Fixed `.array()` error:** Replaced `pages.array().map(...)` with `pages.map(...).values`. Dataview collections do not have an `.array()` method; adding `.values` at the end ensures the result is a standard JavaScript array that `Chart.js` can read.
+3.  **Removed inner `JSON.stringify`:** Since we are now passing data directly to the Chart object within the Javascript execution context, we pass the arrays directly, not as stringified JSON.
