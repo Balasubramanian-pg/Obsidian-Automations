@@ -111,3 +111,6 @@ Replace `☐` with `☑` manually as you complete tasks. Progress updates manual
 - Together they replicate Notion databases without the manual grunt work
 
 Want me to walk you through setting up the plugins, or do you want a template file ready to copy-paste?
+
+
+see so i will tell you i want to track over 20 different habits everyday, i know i will not achieve all of them but i want to be more intentional about my time this year. So I want to track at a daily level, weekly level, monthly level and i want monthly base cards to come for an annual level, i understand achieving all of this in obisidian can be difficult but you tell me what is possible
