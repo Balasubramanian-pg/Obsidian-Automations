@@ -2550,3 +2550,270 @@ I want it to be have these icons
 
 
 can you accomodate this request for me?
+
+Here is the updated DataviewJS code.
+
+I have transformed the three text statistics into **KPI Cards** using the icons you provided. I applied a bright yellow (`#FFD60A`) to the icons to match your request, and styled them to fit cleanly above your charts.
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+// --- 1. DATA FETCHING ---
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+const dailyStats = pages.map(p => {
+    const total = p.file.tasks.length;
+    const done = p.file.tasks.filter(t => t.completed).length;
+    const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+    return {
+        date: p.date.toFormat("dd-MM"),
+        done: done,
+        total: total,
+        progress: progress
+    };
+}).values;
+
+// --- 2. CALCULATE STATS ---
+if (dailyStats.length === 0) {
+    dv.paragraph("❌ No daily notes found!");
+} else {
+    const avgProgress = Math.round(
+        dailyStats.reduce((sum, d) => sum + d.progress, 0) / dailyStats.length
+    );
+    const totalDone = dailyStats.reduce((sum, d) => sum + d.done, 0);
+    const totalTasks = dailyStats.reduce((sum, d) => sum + d.total, 0);
+    const bestDay = dailyStats.reduce((best, d) => 
+        d.progress > best.progress ? d : best
+    );
+
+    // --- 3. ICONS (Yellow) ---
+    const iconColor = "#FFD60A"; // Bright Yellow
+    
+    const iconCMake = `<svg viewBox="0 0 24 24" fill="${iconColor}" xmlns="http://www.w3.org/2000/svg" class="kpi-svg"><path d="M11.769.066L.067 23.206l12.76-10.843zM23.207 23.934L7.471 17.587 0 23.934zM24 23.736L12.298.463l1.719 19.24zM12.893 12.959l-5.025 4.298 5.62 2.248z"/></svg>`;
+    
+    const iconClaris = `<svg viewBox="0 0 24 24" fill="${iconColor}" xmlns="http://www.w3.org/2000/svg" class="kpi-svg"><path d="M11.56 0a3.34 3.34 0 00-.57.043L22.947 12 10.99 23.957c.132.022.307.043.57.043 6.626 0 12-5.375 12-12s-5.374-12-12-12zm-1.535 2.414C4.738 2.414.44 6.713.44 12s4.3 9.588 9.586 9.588c.264 0 .44-.023.57-.045L1.054 12l9.543-9.543a3.337 3.337 0 00-.57-.043zm.746 2.457c-.263 0-.438.021-.57.043L17.287 12l-7.086 7.086c.132.022.307.045.57.045 3.927 0 7.13-3.204 7.13-7.131s-3.203-7.129-7.13-7.129zm-.416 2.434A4.701 4.701 0 005.66 12a4.701 4.701 0 004.695 4.695c.264 0 .44-.023.57-.045L6.274 12l4.653-4.65a3.296 3.296 0 00-.57-.045Z"/></svg>`;
+    
+    const iconClubhouse = `<svg viewBox="0 0 24 24" fill="${iconColor}" xmlns="http://www.w3.org/2000/svg" class="kpi-svg"><path d="M24 9.543c0 .32-.23.763-.337.976-.39.833-1.03 2.112-1.03 3.585 0 3.213-1.135 4.811-2.023 5.628a5.706 5.706 0 0 1-3.852 1.527 6.144 6.144 0 0 1-3.32-.976c-1.366-.905-2.219-2.326-3.088-3.745-.692-1.153-1.171-2.06-1.918-3.816-.421-1.018-.813-2.012-1.15-3.094-.16-.514-.142-.905.053-1.153.195-.23.462-.337.78-.355.55-.018.764.373 1.083 1.384.195.639.586 1.563.816 2.077.302.621.728 1.455.923 1.74.16.25.302.32.461.32.284 0 .497-.16.497-.443 0-.16-.16-.426-.248-.586-.16-.302-.497-.905-.728-1.42a32.775 32.775 0 0 1-.763-1.917c-.142-.373-.301-.905-.461-1.437-.248-.816-.373-1.313-.373-1.687 0-.568.426-.94 1.065-.94.461 0 .763.23.958 1.064.16.763.444 2.006.852 2.982.266.639.656 1.492.887 1.918.142.248.301.461.301.55 0 .124-.23.32-.426.585-.124.16-.177.267-.177.39 0 .107.071.214.177.356.107.142.213.284.338.284.088 0 .142-.036.195-.107a6.12 6.12 0 0 1 1.847-1.563c.816-.461 1.651-.692 2.308-.834.319-.07.408-.142.408-.32 0-.212-.16-.336-.373-.354-.16-.018-.301 0-.55.018-.177.018-.266-.071-.372-.302-.32-.674-.94-1.811-1.313-3.266a13.95 13.95 0 0 1-.39-2.13c-.054-.391.017-.533.212-.71.249-.213.692-.302 1.03-.213.407.106.62.426.833 1.67.107.585.284 1.33.497 1.97.266.816.603 1.492 1.118 2.397.284.497.638 1.011 1.011 1.51-.071.213-.195.354-.603.692-.408.337-.816.692-1.189 1.348-.266.479-.39 1.011-.39 1.366 0 .337.07.408.284.408.372 0 .674-.07.692-.23.088-.64.195-1.047.55-1.528.212-.266.585-.603.887-.87.567-.46.763-.727.958-1.383.088-.302.195-.586.337-.852.337-.62.94-1.33 1.882-1.33.302 0 .55.088.71.337a.966.966 0 0 1 .124.479zM12.608 7.265c.16.658.355 1.226.55 1.723.23.605.497 1.12.87 1.811.177.337.265.337.691.107a9.14 9.14 0 0 1 1.207-.515c-.639-1.384-1.171-2.539-1.437-3.514a29.883 29.883 0 0 1-.39-1.918c-.054-.497-.107-.923-.231-1.384-.142-.568-.338-.834-.888-.834-.514 0-1.135.266-1.135.94 0 .444.124 1.1.248 1.631.213.516.249.835.515 1.953zm-7.484 7.147c-.43.116-2.276.784-2.721.957-.503.195-.857.372-.605 1.122.205.607.553.636.874.516.45-.166 2.442-1.21 2.818-1.442.34-.21.45-.37.29-.769-.145-.363-.354-.465-.656-.384zm-1.276-3.074c.252-.008.448-.09.508-.526.047-.335-.006-.51-.39-.629-.371-.114-2.702-.494-3.205-.542-.434-.042-.702 0-.753.687-.049.64.13.836.572.88.508.05 2.733.144 3.268.13zm-2.63-6.082c.474.283 2.293 1.385 2.906 1.579.306.096.468.01.64-.331s.218-.477-.111-.742c-.34-.274-2.123-1.661-2.628-1.924-.435-.226-.729-.139-.993.361-.299.566-.244.798.185 1.057z"/></svg>`;
+
+    // --- 4. RENDER LAYOUT ---
+    const chartId = 'chart-' + Math.random().toString(36).substr(2, 9);
+    const donutId = 'donut-' + Math.random().toString(36).substr(2, 9);
+    
+    const container = dv.el('div', '', {
+        attr: { style: 'width: 100%;' }
+    });
+    
+    container.innerHTML = `
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+            
+            /* KPI CARDS STYLING */
+            .kpi-container {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+                margin-bottom: 40px;
+                font-family: 'Outfit', sans-serif;
+            }
+            .kpi-card {
+                background-color: var(--background-secondary);
+                border: 1px solid var(--background-modifier-border);
+                border-radius: 12px;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .kpi-icon-wrapper {
+                margin-bottom: 12px;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .kpi-svg {
+                width: 32px;
+                height: 32px;
+            }
+            .kpi-value {
+                font-size: 28px;
+                font-weight: 700;
+                color: var(--text-normal);
+                line-height: 1.2;
+                margin-bottom: 4px;
+            }
+            .kpi-sub {
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--text-muted);
+            }
+            
+            /* CHART STYLING */
+            .charts-container {
+                display: grid;
+                grid-template-columns: 1fr 400px;
+                gap: 40px;
+                align-items: center;
+                font-family: 'Outfit', sans-serif;
+            }
+            .chart-wrapper { width: 100%; height: 300px; }
+            .donut-wrapper { width: 100%; height: 300px; position: relative; }
+            .donut-center-text {
+                position: absolute;
+                top: 50%; left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                pointer-events: none;
+            }
+            .donut-percentage {
+                font-size: 48px; font-weight: 700;
+                color: rgba(46, 140, 252, 1); line-height: 1;
+            }
+            .donut-label {
+                font-size: 14px; font-weight: 500;
+                color: rgba(156, 163, 175, 1); margin-top: 8px;
+            }
+            
+            @media (max-width: 768px) {
+                .kpi-container { grid-template-columns: 1fr; }
+                .charts-container { grid-template-columns: 1fr; }
+            }
+        </style>
+        
+        <!-- KPI SECTION -->
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-icon-wrapper">${iconCMake}</div>
+                <div class="kpi-value">${totalDone} / ${totalTasks}</div>
+                <div class="kpi-sub">Total Habits Completed</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-icon-wrapper">${iconClaris}</div>
+                <div class="kpi-value">${avgProgress}%</div>
+                <div class="kpi-sub">Average Daily Progress</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-icon-wrapper">${iconClubhouse}</div>
+                <div class="kpi-value">${bestDay.progress}%</div>
+                <div class="kpi-sub">Best Day: ${bestDay.date}</div>
+            </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="charts-container">
+            <div>
+                <h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 16px;">📈 Daily Tasks Completed</h3>
+                <div class="chart-wrapper">
+                    <canvas id="${chartId}"></canvas>
+                </div>
+            </div>
+            
+            <div>
+                <h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 16px;">🎯 Average Weekly Progress</h3>
+                <div class="donut-wrapper">
+                    <canvas id="${donutId}"></canvas>
+                    <div class="donut-center-text">
+                        <div class="donut-percentage">${avgProgress}%</div>
+                        <div class="donut-label">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // --- 5. INITIALIZE CHARTS ---
+    if (!window.Chart) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+        script.onload = () => createCharts();
+        document.head.appendChild(script);
+    } else {
+        createCharts();
+    }
+    
+    function createCharts() {
+        const ctx1 = document.getElementById(chartId);
+        const ctx2 = document.getElementById(donutId);
+        
+        if (ctx1) {
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: dailyStats.map(d => d.date),
+                    datasets: [{
+                        label: 'Tasks Completed',
+                        data: dailyStats.map(d => d.done),
+                        fill: true,
+                        backgroundColor: 'rgba(215, 224, 255, 0.8)',
+                        borderColor: 'rgba(46, 140, 252, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'rgba(46, 140, 252, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { font: { family: 'Outfit', size: 12 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Outfit', size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        if (ctx2) {
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        data: [avgProgress, 100 - avgProgress],
+                        backgroundColor: [
+                            'rgba(46, 140, 252, 0.8)',
+                            'rgba(233, 243, 255, 0.8)'
+                        ],
+                        borderWidth: 0,
+                        cutout: '75%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        }
+    }
+}
+```
