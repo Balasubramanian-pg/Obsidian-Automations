@@ -743,3 +743,10 @@ dv.table(headers, rows);
 This DataviewJS version is bulletproof and will show you exactly which habits you're hitting each day in a nice grid.
 
 Test it and let me know if it works!
+```
+Dataview: Every row during final data extraction failed with an error; first 3:
+
+            - No implementation of 'meta' found for arguments: array
+
+is this happening because we did not put the habits in yaml or can we pick it from the content of the page like we are doing now?
+```
