@@ -1790,3 +1790,222 @@ Evaluation Error: TypeError: dailyStats.reduce is not a function
     at DataviewPlugin.dataviewjs (plugin:dataview:20537:18)
     at eval (plugin:dataview:20415:124)
 ```
+
+The error means `dailyStats` isn't an array when you're trying to call `.reduce()` on it. This happens when the query returns no results or the data structure is wrong.
+
+**Quick fix:** Add safety checks before using `.reduce()`.
+
+---
+
+## Fixed Code with Error Handling
+
+```markdown
+---
+date: 2025-11-28
+week: 2025-W48
+tags: weekly
+---
+
+# Week 2025-W48
+
+## Weekly Overview
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+// Get daily notes (exclude dashboard files)
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+// Convert to array and calculate stats
+const dailyStats = pages.array().map(p => {
+    const total = p.file.tasks.length;
+    const done = p.file.tasks.filter(t => t.completed).length;
+    const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+    return {
+        date: p.date.toFormat("dd-MM"),
+        done: done,
+        total: total,
+        progress: progress
+    };
+});
+
+// Safety check
+if (dailyStats.length === 0) {
+    dv.paragraph("❌ No daily notes found for this week!");
+} else {
+    // Calculate weekly average
+    const avgProgress = Math.round(
+        dailyStats.reduce((sum, d) => sum + d.progress, 0) / dailyStats.length
+    );
+    
+    const totalDone = dailyStats.reduce((sum, d) => sum + d.done, 0);
+    const totalTasks = dailyStats.reduce((sum, d) => sum + d.total, 0);
+    
+    const bestDay = dailyStats.reduce((best, d) => 
+        d.progress > best.progress ? d : best, 
+        {date: 'N/A', progress: 0}
+    );
+
+    // Display summary
+    dv.header(3, "📊 Week Summary");
+    dv.paragraph(`
+**Total Habits Completed:** ${totalDone} / ${totalTasks}  
+**Average Daily Progress:** ${avgProgress}%  
+**Best Day:** ${bestDay.date} (${bestDay.progress}%)
+    `);
+
+    // Area Chart
+    dv.header(3, "📈 Daily Tasks Completed");
+    const chartHtml = `
+<div style="width: 100%; height: 300px; margin: 20px 0;">
+    <canvas id="weeklyChart"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('weeklyChart');
+if (ctx && !ctx.chart) {
+    ctx.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ${JSON.stringify(dailyStats.map(d => d.date))},
+            datasets: [{
+                label: 'Tasks Completed',
+                data: ${JSON.stringify(dailyStats.map(d => d.done))},
+                fill: true,
+                backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                borderColor: 'rgba(34, 197, 94, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(34, 197, 94, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: { stepSize: 5 }
+                }
+            }
+        }
+    });
+}
+</script>
+    `;
+    dv.paragraph(chartHtml);
+
+    // Donut Chart
+    dv.header(3, "🎯 Average Weekly Progress");
+    const donutHtml = `
+<div style="width: 300px; height: 300px; margin: 20px auto;">
+    <canvas id="progressDonut"></canvas>
+</div>
+<script>
+const ctx2 = document.getElementById('progressDonut');
+if (ctx2 && !ctx2.chart) {
+    ctx2.chart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Remaining'],
+            datasets: [{
+                data: [${avgProgress}, ${100 - avgProgress}],
+                backgroundColor: [
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(55, 65, 81, 0.3)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+</script>
+    `;
+    dv.paragraph(donutHtml);
+}
+```
+
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+const pages = dv.pages(`"${folder}"`)
+    .where(p => 
+        p.date && 
+        p.date >= startDate && 
+        p.date <= endDate &&
+        !p.file.name.includes("Dashboard")
+    )
+    .sort(p => p.date, 'asc');
+
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+dv.table(headers, rows);
+```
+```
+
+---
+
+## Key Changes
+
+1. **Added `.array()`** → Converts Dataview result to actual JavaScript array
+2. **Added safety check** → Won't crash if no notes found
+3. **Added `ctx.chart` check** → Prevents duplicate chart renders
+4. **Better gradient colors** → Green gradient for completed tasks
+
+---
+
+## If Still Broken, Debug It
+
+Add this at the top of your DataviewJS block to see what's wrong:
+
+```javascript
+dv.paragraph(`Debug: Found ${pages.length} pages`);
+dv.paragraph(`Pages type: ${typeof pages}`);
+dv.paragraph(`Is array? ${Array.isArray(pages)}`);
+```
+
+Paste the output and I'll fix it. Should work now though! 🎯
