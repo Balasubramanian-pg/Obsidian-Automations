@@ -1273,3 +1273,193 @@ Try that and let me know if you get green checkmarks! 🎯
 <img width="1568" height="571" alt="image" src="https://github.com/user-attachments/assets/333266da-6151-41fe-b793-8a78ea6aaf2d" />
 okay so we need to fix this only today is coming correctly, atleast today is coming correct
 
+Progress! 60% completion on 25-12-2025 is showing correctly. Now let's fix the rest of the week.
+
+---
+
+## Issue: Only One Day Has Frontmatter
+
+The debug output showed:
+- `25-12-2025`: Has `date:` frontmatter → Works ✅
+- `25-12-25`: **No frontmatter** → Fails ❌
+
+You need to add the `date:` frontmatter to **all your daily notes** for the week.
+
+---
+
+## Quick Fix: Bulk Add Frontmatter to This Week's Notes
+
+Open each of these files and add the frontmatter:
+
+**22-11-2025** (add at top):
+```markdown
+---
+date: 2025-11-22
+tags: daily
+---
+```
+
+**23-11-2025**:
+```markdown
+---
+date: 2025-11-23
+tags: daily
+---
+```
+
+**24-11-2025**:
+```markdown
+---
+date: 2025-11-24
+tags: daily
+---
+```
+
+**25-11-2025**:
+```markdown
+---
+date: 2025-11-25
+tags: daily
+---
+```
+
+**26-11-2025**:
+```markdown
+---
+date: 2025-11-26
+tags: daily
+---
+```
+
+**27-11-2025**:
+```markdown
+---
+date: 2025-11-27
+tags: daily
+---
+```
+
+**28-11-2025**:
+```markdown
+---
+date: 2025-11-28
+tags: daily
+---
+```
+
+---
+
+## Updated Weekly Dashboard (Correct Date Range)
+
+Your current dashboard is looking at **December 22-28**, but your notes are from **November**. Fix the date range:
+
+```markdown
+---
+date: 2025-11-28
+week: 2025-W48
+tags: weekly
+---
+
+# Week 2025-W48
+
+## Weekly Overview
+
+```dataview
+TABLE WITHOUT ID
+  file.link as "Date",
+  length(file.tasks) as "Total",
+  length(filter(file.tasks, (t) => t.completed)) as "Done",
+  round((length(filter(file.tasks, (t) => t.completed)) / length(file.tasks)) * 100) + "%" as "Progress"
+FROM "2. Daily Reflection"
+WHERE date >= date(2025-11-22) AND date <= date(2025-11-28)
+SORT date ASC
+```
+
+## Weekly Habit Grid
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.date && p.date >= startDate && p.date <= endDate)
+    .sort(p => p.date, 'asc');
+
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+const icons = ["🏃", "📚", "💧", "🧘", "📝", "🛏️", "🥗", "📱", "🎯", "👥", 
+               "🧹", "📖", "🎨", "💪", "🚶", "📊", "💻", "🍎", "📞", "🧠"];
+
+const headers = ["Date", ...icons];
+const rows = pages.map(p => {
+    const checks = habits.map(habit => {
+        const task = p.file.tasks.find(t => t.text.includes(habit));
+        return task && task.completed ? "✅" : "❌";
+    });
+    return [p.file.link, ...checks];
+});
+
+if (rows.length === 0) {
+    dv.paragraph("❌ No daily notes found for this week!");
+} else {
+    dv.table(headers, rows);
+}
+```
+```
+
+---
+
+## Automation: Fix Templater for Future Notes
+
+Update your **Daily Note Template** so new notes auto-generate correct frontmatter:
+
+```markdown
+---
+date: <% tp.file.creation_date("YYYY-MM-DD") %>
+tags: daily
+---
+
+# <% tp.file.creation_date("MMMM DD, YYYY") %>
+
+## Habits
+- [ ] 🏃 Exercise (30 min)
+- [ ] 📚 Read (20 min)
+- [ ] 💧 Drink water (8 glasses)
+- [ ] 🧘 Meditate (10 min)
+- [ ] 📝 Journal
+- [ ] 🛏️ Sleep by 11pm
+- [ ] 🥗 Healthy meals (3/3)
+- [ ] 📱 No phone before bed
+- [ ] 🎯 Deep work (2 hours)
+- [ ] 👥 Social connection
+- [ ] 🧹 Tidy space
+- [ ] 📖 Learn something new
+- [ ] 🎨 Creative work
+- [ ] 💪 Strength training
+- [ ] 🚶 Walk outside
+- [ ] 📊 Review goals
+- [ ] 💻 No social media scrolling
+- [ ] 🍎 No junk food
+- [ ] 📞 Call family/friend
+- [ ] 🧠 Brain training
+
+## Notes
+<!-- Reflection, wins, struggles -->
+```
+
+---
+
+## Action Plan
+
+1. **Add frontmatter to all November notes** (22-28)
+2. **Update the weekly dashboard date range** to `2025-11-22` through `2025-11-28`
+3. **Refresh the dashboard** (close and reopen the note)
+
+You should then see all 7 days with proper checkmarks. Let me know when you've added the frontmatter and I'll help debug if anything's still broken!
