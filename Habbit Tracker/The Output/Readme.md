@@ -1577,3 +1577,6 @@ pages.forEach(p => {
 html += `</div>`;
 container.innerHTML = html;
 }
+
+
+no no but i really liked the shape for full before, not triangle, can we make that change, it was not a triangle
