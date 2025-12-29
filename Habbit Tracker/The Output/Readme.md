@@ -644,3 +644,208 @@ container.innerHTML = html;
 
 
 I want you to use consistent padding for all rows and align all the boxes with each other
+
+## Why it looks misaligned right now
+
+Short, non-handwavy diagnosis before we fix it.
+
+### Core layout problems
+
+* You are splitting habits into **manual rows**. This guarantees misalignment because:
+
+  * Each row has a different number of items.
+  * Grid auto-fit recalculates widths per row.
+* Each habit card has a **different label width**.
+* The sequence container width is implicit, not fixed.
+* Padding and gaps are defined in multiple places with different values.
+
+Result: visually noisy, jagged edges, uneven rhythm.
+
+The fix is not “tuning spacing”.
+The fix is **changing the mental model** of the layout.
+
+---
+
+## New layout model (what we will do instead)
+
+### Design principles
+
+* One grid. Not three rows.
+* Fixed-width habit cards.
+* Fixed-width DNA sequence.
+* Consistent vertical rhythm.
+* Minimal glow, no visual clutter.
+* Responsive without recalculating alignment.
+
+### Visual outcome
+
+* Every habit aligns perfectly.
+* Rows auto-wrap cleanly.
+* Boxes snap into a calm, modular system.
+* Looks intentional, not improvised.
+
+---
+
+## Drop-in replacement code (fully rewritten)
+
+You can replace your entire DataviewJS block with this.
+
+```dataviewjs
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+
+const pages = dv.pages(`"${folder}"`)
+  .where(p => p.date && p.date >= startDate && p.date <= endDate && !p.file.name.includes("Dashboard"))
+  .sort(p => p.date, 'asc');
+
+const habits = [
+  "Exercise", "Read", "Drink water", "Meditate", "Journal",
+  "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+  "Tidy space", "Learn something", "Creative work", "Strength training",
+  "Walk outside", "Review goals", "No social media", "No junk food",
+  "Call family", "Brain training"
+];
+
+const container = dv.el("div", "");
+
+container.innerHTML = `
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap');
+
+.dna-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.dna-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.dna-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 24px 20px;
+  align-items: start;
+}
+
+.dna-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.dna-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  text-align: center;
+  width: 100%;
+}
+
+.dna-sequence {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  width: 100%;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.dna-card:hover .dna-sequence {
+  border-color: rgba(255, 214, 10, 0.5);
+  box-shadow: 0 6px 16px rgba(255, 214, 10, 0.18);
+}
+
+.dna-bit {
+  width: 10px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--background-modifier-border);
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.dna-bit.active {
+  background: #FFD60A;
+}
+
+.dna-card:hover .dna-bit.active {
+  transform: translateY(-2px);
+}
+</style>
+
+<div class="dna-wrapper">
+  <div class="dna-title">Weekly DNA Fingerprint</div>
+  <div class="dna-grid">
+    ${habits.map(habit => {
+      const bits = pages.map(p => {
+        const done = p.file.tasks.some(
+          t => t.text.includes(habit) && t.completed
+        );
+        return `<div class="dna-bit ${done ? "active" : ""}"></div>`;
+      }).join("");
+
+      return `
+        <div class="dna-card">
+          <div class="dna-label">${habit}</div>
+          <div class="dna-sequence">${bits}</div>
+        </div>
+      `;
+    }).join("")}
+  </div>
+</div>
+`;
+```
+
+---
+
+## Why this version works
+
+### Alignment is mathematically guaranteed
+
+* One grid definition.
+* Identical card width logic.
+* Identical padding everywhere.
+* No row-specific rules.
+
+### Visual hierarchy is cleaner
+
+* Labels are centered and consistent.
+* DNA bars line up across the entire grid.
+* No uneven shadows or accidental emphasis.
+
+### Motion is restrained
+
+* Only hover on the card.
+* No jitter.
+* No scale explosions.
+* Gold is used as a signal, not decoration.
+
+---
+
+## If you want to go one level further later
+
+Natural extensions that will fit this system cleanly:
+
+* Week-over-week comparison toggle.
+* Click a habit to open its daily breakdown.
+* Animate bits left-to-right on load.
+* Add a faint vertical rhythm grid in the background.
+
+This structure will support all of that without collapsing.
+
+Your instinct to call this “ugly” was correct.
+It was not broken, it was under-structured.
