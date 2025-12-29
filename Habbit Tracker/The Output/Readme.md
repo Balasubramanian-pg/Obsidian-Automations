@@ -1103,3 +1103,107 @@ If you want next-level polish later, the natural upgrades would be:
 * Color intensity based on score density
 
 But even without that, this is already production-grade Obsidian UI.
+
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.date && p.date >= startDate && p.date <= endDate && !p.file.name.includes("Dashboard"));
+
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+// Shorten names for the EQ labels (3-4 chars)
+const shortNames = habits.map(h => h.substring(0, 3).toUpperCase());
+
+// Calculate percentages
+const data = habits.map(h => {
+    const total = pages.length || 1;
+    const completed = pages.filter(p => p.file.tasks.some(t => t.text.includes(h) && t.completed)).length;
+    return Math.round((completed / total) * 10); // Scale 0-10 for 10 blocks
+});
+
+const container = dv.el('div', '', { 
+    attr: { style: 'margin-bottom: 40px; background: var(--background-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--background-modifier-border);' } 
+});
+
+let html = `
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+    
+    .synth-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        height: 180px;
+        gap: 4px;
+        padding-top: 20px;
+        overflow-x: auto;
+    }
+    .synth-channel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        min-width: 20px;
+    }
+    .synth-bar {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 2px;
+        margin-bottom: 8px;
+    }
+    .synth-led {
+        width: 12px;
+        height: 8px;
+        background: var(--background-modifier-border);
+        border-radius: 1px;
+        opacity: 0.2;
+        transition: all 0.3s ease;
+    }
+    .synth-led.active {
+        opacity: 1;
+        background: #FFD60A;
+        box-shadow: 0 0 5px rgba(255, 214, 10, 0.6);
+    }
+    /* Make the top LEDs red/intense if 100% */
+    .synth-led.active.peak {
+        background: #FF5C5C;
+        box-shadow: 0 0 8px rgba(255, 92, 92, 0.8);
+    }
+    .synth-label {
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 9px;
+        color: var(--text-muted);
+        transform: rotate(-45deg);
+        transform-origin: center;
+        white-space: nowrap;
+        margin-top: 5px;
+    }
+</style>
+<h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 0; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; color: var(--text-muted);">Habit Frequency Response</h3>
+<div class="synth-container">
+`;
+
+data.forEach((score, index) => {
+    html += `<div class="synth-channel"><div class="synth-bar">`;
+    
+    // Create 10 LEDs
+    for(let i=1; i<=10; i++) {
+        const isActive = i <= score;
+        const isPeak = i === 10; // Top block
+        html += `<div class="synth-led ${isActive ? 'active' : ''} ${isActive && isPeak ? 'peak' : ''}"></div>`;
+    }
+    
+    html += `</div><div class="synth-label" title="${habits[index]}">${shortNames[index]}</div></div>`;
+});
+
+html += `</div>`;
+container.innerHTML = html;
+
+i need to do the same for this as well, ALso can we make this more interactive with tooltips stating some important data point and making the shape a bit more thick currently it is so thin and also please ensure that the full name of the habbit is coming the fonts have to be afacad
