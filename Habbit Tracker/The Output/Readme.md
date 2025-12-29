@@ -1487,3 +1487,93 @@ If you want the next refinement later, the correct next step would be:
 But for now, this version is structurally sound and aesthetically resolved.
 
 amazing amazing work, now like we did we need two radio buttons, sort ascending and sort descending and a default view, can you make that happen
+
+
+i want this to have the following changes, see 100% being purely golden is very good but the triangles which are less than 50% also needs to have some color fill but lighter and no so fuller and 50 to 100 % should also have some medium indicator so that it urges me to achieve better and instantly understand where i let down this week and the week should always begin with monday, and here also we will need a radio button by the way, default, sort ascending and sort descending
+here is the code 
+{
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.date && p.date >= startDate && p.date <= endDate && !p.file.name.includes("Dashboard"))
+    .sort(p => p.date, 'asc');
+
+const container = dv.el('div', '', { 
+    attr: { style: 'margin: 40px 0; background: linear-gradient(180deg, var(--background-secondary) 0%, transparent 100%); padding: 30px; border-radius: 12px; border-top: 1px solid var(--background-modifier-border);' } 
+});
+
+// SVG Definitions
+const shapes = {
+    gold: `<svg viewBox="0 0 24 24" fill="#FFD60A" class="loot-item glow"><path d="M12 2l10 6-10 14L2 8z"/></svg>`, // Diamond
+    blue: `<svg viewBox="0 0 24 24" fill="#2e8cfc" class="loot-item"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>`, // Cube
+    grey: `<svg viewBox="0 0 24 24" fill="var(--text-muted)" class="loot-item dim"><path d="M12 2L2 22h20L12 2z"/></svg>` // Pyramid
+};
+
+let html = `
+<style>
+    .loot-shelf {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        perspective: 1000px;
+    }
+    .loot-slot {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        transition: transform 0.3s ease;
+    }
+    .loot-slot:hover {
+        transform: translateY(-5px);
+    }
+    .loot-item {
+        width: 40px;
+        height: 40px;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+    }
+    .loot-item.glow {
+        filter: drop-shadow(0 0 10px rgba(255, 214, 10, 0.6));
+    }
+    .loot-item.dim {
+        opacity: 0.3;
+    }
+    .loot-date {
+        font-family: 'Outfit', sans-serif;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+    }
+    .loot-score {
+        font-family: 'Outfit', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-normal);
+    }
+</style>
+<h3 style="font-family: 'Outfit', sans-serif; text-align: center; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; color: var(--text-muted);">Weekly Loot Collection</h3>
+<div class="loot-shelf">
+`;
+
+pages.forEach(p => {
+    const total = p.file.tasks.length;
+    const done = p.file.tasks.filter(t => t.completed).length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    
+    let icon = shapes.grey;
+    if (pct >= 90) icon = shapes.gold;
+    else if (pct >= 60) icon = shapes.blue;
+    
+    html += `
+    <div class="loot-slot">
+        <div class="loot-score">${pct}%</div>
+        ${icon}
+        <div class="loot-date">${p.date.toFormat('EEE')}</div>
+    </div>`;
+});
+
+html += `</div>`;
+container.innerHTML = html;
+}
