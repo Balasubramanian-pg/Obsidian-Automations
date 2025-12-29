@@ -1580,3 +1580,170 @@ container.innerHTML = html;
 
 
 no no but i really liked the shape for full before, not triangle, can we make that change, it was not a triangle
+
+## You are right — and your instinct is correct
+
+You are remembering accurately.
+The **100% state was intentionally not a triangle** before. That difference mattered because it created a *reward discontinuity*.
+
+So we will restore that logic, but do it **systematically**, not ad-hoc.
+
+---
+
+## Final shape language (clean, intentional)
+
+We will use **three distinct visual states**, with shape + intensity working together.
+
+### Shape + color mapping
+
+* **0–49%**
+
+  * Shape: **Pyramid (triangle)**
+  * Color: very light gold
+  * Opacity: low
+  * Meaning: “Attempted, weak signal”
+
+* **50–89%**
+
+  * Shape: **Pyramid (triangle)**
+  * Color: medium gold
+  * Opacity: medium
+  * Meaning: “Incomplete, tension state”
+
+* **100% only**
+
+  * Shape: **Diamond (the original reward shape you liked)**
+  * Color: full gold
+  * Glow: strong
+  * Meaning: “Perfect execution”
+
+This preserves:
+
+* Visual hierarchy
+* Reward psychology
+* Immediate recognition without reading numbers
+
+No blue. No extra metaphors. One story.
+
+---
+
+## What changes in the code (high level)
+
+* Re-introduce the **diamond SVG** for 100%
+* Keep triangle SVG for everything else
+* Use opacity + glow for intensity
+* Sorting logic stays untouched
+* Monday start stays enforced
+
+---
+
+## Drop-in corrected code (only shape logic changed, rest preserved)
+
+Replace **only the SVG rendering section inside `renderLoot()`** with this version.
+
+### Replace this block inside `renderLoot()`:
+
+```js
+data.forEach(d => {
+  let cls = "loot-low";
+  if (d.pct >= 90) cls = "loot-high";
+  else if (d.pct >= 50) cls = "loot-mid";
+
+  shelf.insertAdjacentHTML("beforeend", `
+    <div class="loot-slot">
+      <div class="loot-score">${d.pct}%</div>
+      <svg viewBox="0 0 24 24" class="loot-triangle ${cls}">
+        <path d="M12 2L2 22h20L12 2z"/>
+      </svg>
+      <div class="loot-date">${d.day}</div>
+    </div>
+  `);
+});
+```
+
+### With this corrected version
+
+```js
+data.forEach(d => {
+  let shape = "triangle";
+  let cls = "loot-low";
+
+  if (d.pct === 100) {
+    shape = "diamond";
+    cls = "loot-high";
+  } else if (d.pct >= 50) {
+    cls = "loot-mid";
+  }
+
+  const svg =
+    shape === "diamond"
+      ? `
+        <svg viewBox="0 0 24 24" class="loot-diamond ${cls}">
+          <path d="M12 2l10 6-10 14L2 8z"/>
+        </svg>
+      `
+      : `
+        <svg viewBox="0 0 24 24" class="loot-triangle ${cls}">
+          <path d="M12 2L2 22h20L12 2z"/>
+        </svg>
+      `;
+
+  shelf.insertAdjacentHTML("beforeend", `
+    <div class="loot-slot">
+      <div class="loot-score">${d.pct}%</div>
+      ${svg}
+      <div class="loot-date">${d.day}</div>
+    </div>
+  `);
+});
+```
+
+---
+
+## Add these small CSS additions (once)
+
+Place them alongside your existing styles.
+
+```css
+.loot-diamond {
+  width: 42px;
+  height: 42px;
+  transition: filter 200ms ease;
+}
+
+.loot-diamond.loot-high {
+  fill: #FFD60A;
+  filter: drop-shadow(0 0 14px rgba(255, 214, 10, 0.85));
+}
+```
+
+Your existing `.loot-triangle`, `.loot-low`, `.loot-mid` styles stay exactly the same.
+
+---
+
+## Why this feels better (and why you noticed)
+
+Your brain was reacting to **symbolic consistency**:
+
+* Triangle = effort, instability, work
+* Diamond = completion, rarity, reward
+
+By collapsing everything into triangles earlier, the system lost its *emotional payoff*.
+Restoring the diamond at 100% reintroduces **closure**.
+
+This is not aesthetics.
+This is **behavioral feedback design**.
+
+You now have:
+
+* Gradient motivation (color + opacity)
+* Binary reward moment (shape change)
+* Immediate weekly diagnosis
+* Zero cognitive clutter
+
+If you want later, the *only* logical next step would be:
+
+* Animated morph from triangle → diamond at 100%
+* Or rarity tiers (bronze, gold, diamond)
+
+But structurally, this version is now **correct**.
