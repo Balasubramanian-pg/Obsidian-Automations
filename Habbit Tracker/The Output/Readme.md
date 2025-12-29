@@ -299,3 +299,236 @@ And the two emojis used in the title of the graphs have to be replaced by this p
 golden yellow color obviously 
 
 Also be creative in rendering any needed animation for the area graph and donut chart upon hover please
+
+## What will change and why
+
+You already have a clean visual system. The request boils down to four controlled upgrades that stay tasteful and quiet:
+
+* Add a visible border and a very light golden shadow that appears only on hover.
+* Apply the same visual treatment to KPI cards, the area chart container, and the donut chart container.
+* Replace the emoji titles with your provided SVG icons in gold.
+* Use the Afacad font for the area chart tooltip and add subtle hover animations to both charts.
+
+No logic changes, only styling and chart configuration.
+
+---
+
+## 1. KPI cards: border and hover-only golden shadow
+
+You already have a border. We will refine it and add a hover shadow that uses gold but stays restrained.
+
+### Replace the `.kpi-card` CSS with this
+
+```css
+.kpi-card {
+    background-color: var(--background-secondary);
+    border: 1px solid rgba(255, 214, 10, 0.35);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: none;
+    transition:
+        box-shadow 220ms ease,
+        transform 220ms ease,
+        border-color 220ms ease;
+}
+
+.kpi-card:hover {
+    border-color: #FFD60A;
+    box-shadow: 0 6px 18px rgba(255, 214, 10, 0.22);
+    transform: translateY(-2px);
+}
+```
+
+This keeps the default state flat and introduces a soft lift only on hover.
+
+---
+
+## 2. Chart containers: same border and hover behavior
+
+We need a wrapper that visually behaves like a card.
+
+### Add this CSS
+
+```css
+.chart-surface {
+    background-color: var(--background-secondary);
+    border: 1px solid rgba(255, 214, 10, 0.35);
+    border-radius: 14px;
+    padding: 20px;
+    transition:
+        box-shadow 220ms ease,
+        transform 220ms ease,
+        border-color 220ms ease;
+}
+
+.chart-surface:hover {
+    border-color: #FFD60A;
+    box-shadow: 0 6px 20px rgba(255, 214, 10, 0.24);
+    transform: translateY(-2px);
+}
+```
+
+### Wrap both charts in this container
+
+Replace your chart section HTML with this structure:
+
+```html
+<div class="charts-container">
+    <div class="chart-surface">
+        <h3 class="chart-title">
+            <span class="chart-icon">
+                <!-- Hive SVG here -->
+            </span>
+            Daily Tasks Completed
+        </h3>
+        <div class="chart-wrapper">
+            <canvas id="${chartId}"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-surface">
+        <h3 class="chart-title">
+            <span class="chart-icon">
+                <!-- Haxe SVG here -->
+            </span>
+            Average Weekly Progress
+        </h3>
+        <div class="donut-wrapper">
+            <canvas id="${donutId}"></canvas>
+            <div class="donut-center-text">
+                <div class="donut-percentage">${avgProgress}%</div>
+                <div class="donut-label">Completed</div>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+---
+
+## 3. SVG icons for chart titles in gold
+
+### Add this CSS
+
+```css
+.chart-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.chart-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: #FFD60A;
+}
+```
+
+### Insert your provided SVGs
+
+* Hive SVG goes in the area graph title.
+* Haxe SVG goes in the donut chart title.
+* No emojis anywhere.
+
+---
+
+## 4. Afacad font for the area chart tooltip
+
+### Load the font
+
+Add this inside your `<style>` block:
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600&display=swap');
+```
+
+### Update the Chart.js tooltip configuration
+
+Modify the **area chart** options:
+
+```js
+plugins: {
+    legend: { display: false },
+    tooltip: {
+        enabled: true,
+        backgroundColor: 'rgba(17, 17, 17, 0.9)',
+        borderColor: '#FFD60A',
+        borderWidth: 1,
+        titleFont: {
+            family: 'Afacad',
+            size: 14,
+            weight: '600'
+        },
+        bodyFont: {
+            family: 'Afacad',
+            size: 13,
+            weight: '500'
+        },
+        padding: 10,
+        cornerRadius: 10
+    }
+}
+```
+
+This affects only the area graph as requested.
+
+---
+
+## 5. Subtle hover animation for charts
+
+### Area chart hover refinement
+
+Inside the dataset:
+
+```js
+pointHoverRadius: 7,
+pointHoverBorderWidth: 3
+```
+
+And add:
+
+```js
+hover: {
+    mode: 'nearest',
+    intersect: false
+},
+animation: {
+    duration: 900,
+    easing: 'easeOutQuart'
+}
+```
+
+### Donut chart hover animation
+
+Update the donut chart options:
+
+```js
+animation: {
+    animateRotate: true,
+    duration: 900,
+    easing: 'easeOutQuart'
+},
+hoverOffset: 10
+```
+
+This gives a gentle expansion on hover without looking playful or loud.
+
+---
+
+## What was intentionally not changed
+
+* No new colors introduced beyond your gold.
+* No persistent shadows.
+* No extra motion outside hover and initial render.
+* No layout or data logic touched.
+
+The result stays minimal, confident, and deliberate. The gold behaves like an accent, not a spotlight.
