@@ -1207,3 +1207,6 @@ html += `</div>`;
 container.innerHTML = html;
 
 i need to do the same for this as well, ALso can we make this more interactive with tooltips stating some important data point and making the shape a bit more thick currently it is so thin and also please ensure that the full name of the habbit is coming the fonts have to be afacad
+
+<img width="1746" height="368" alt="image" src="https://github.com/user-attachments/assets/fa300411-d51f-427f-8d87-6040fd00f599" />
+really good job but it has to be as wide as the page, and the entire habbit name has to come and like i told you no tooltip is coming yet
