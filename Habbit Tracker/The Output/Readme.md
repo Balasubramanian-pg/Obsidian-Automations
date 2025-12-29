@@ -532,3 +532,115 @@ This gives a gentle expansion on hover without looking playful or loud.
 * No layout or data logic touched.
 
 The result stays minimal, confident, and deliberate. The gold behaves like an accent, not a spotlight.
+
+
+# Fixing the habbit dna
+currently the items are not aligned and they look ugly too, can you help me change the entire code to provide dynamic, sleek, minimal ui 
+
+const folder = "2. Daily Reflection";
+const startDate = dv.date("2025-11-22");
+const endDate = dv.date("2025-11-28");
+const pages = dv.pages(`"${folder}"`)
+    .where(p => p.date && p.date >= startDate && p.date <= endDate && !p.file.name.includes("Dashboard"))
+    .sort(p => p.date, 'asc');
+
+const habits = [
+    "Exercise", "Read", "Drink water", "Meditate", "Journal",
+    "Sleep", "Healthy meals", "No phone", "Deep work", "Social connection",
+    "Tidy space", "Learn something", "Creative work", "Strength training",
+    "Walk outside", "Review goals", "No social media", "No junk food",
+    "Call family", "Brain training"
+];
+
+// Split habits into 3 rows
+const habitsPerRow = Math.ceil(habits.length / 3);
+const rows = [
+    habits.slice(0, habitsPerRow),
+    habits.slice(habitsPerRow, habitsPerRow * 2),
+    habits.slice(habitsPerRow * 2)
+];
+
+const container = dv.el('div', '', { 
+    attr: { style: 'margin-bottom: 40px; background: var(--background-primary); padding: 0; overflow: hidden;' } 
+});
+
+let html = `
+<style>
+    .dna-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .dna-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+        gap: 16px;
+        justify-items: center;
+    }
+    .dna-strand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 90px;
+    }
+    .dna-label {
+        font-family: 'Outfit', monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        font-weight: 500;
+    }
+    .dna-sequence {
+        display: flex;
+        gap: 3px;
+        background: var(--background-secondary);
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid var(--background-modifier-border);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .dna-bit {
+        width: 10px;
+        height: 20px;
+        border-radius: 3px;
+        background-color: var(--background-modifier-border);
+        transition: all 0.2s ease;
+    }
+    .dna-bit.active {
+        background-color: #FFD60A;
+        box-shadow: 0 0 5px rgba(255, 214, 10, 0.5);
+    }
+    .dna-bit:hover {
+        transform: scale(1.2);
+    }
+</style>
+<h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; color: var(--text-muted);">Weekly DNA Fingerprint</h3>
+<div class="dna-container">
+`;
+
+rows.forEach(row => {
+    html += `<div class="dna-row">`;
+    row.forEach(habit => {
+        html += `<div class="dna-strand"><div class="dna-label">${habit.split(" ")[0]}</div><div class="dna-sequence">`;
+        
+        pages.forEach(p => {
+            const isDone = p.file.tasks.some(t => t.text.includes(habit) && t.completed);
+            html += `<div class="dna-bit ${isDone ? 'active' : ''}" title="${p.date.toFormat('EEE')}: ${habit}"></div>`;
+        });
+        
+        html += `</div></div>`;
+    });
+    html += `</div>`;
+});
+
+html += `</div>`;
+container.innerHTML = html;
+
+
+I want you to use consistent padding for all rows and align all the boxes with each other
