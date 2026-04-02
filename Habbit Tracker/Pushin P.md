@@ -39,7 +39,6 @@ SORT date ASC
 ```
 ```
 
----
 
 ## Option 2: Using Tasks Plugin (Better Task Management)
 
@@ -82,7 +81,6 @@ SORT file.day ASC
 ```
 ```
 
----
 
 ## Option 3: Simple Markdown Table (No Plugins)
 
@@ -101,7 +99,6 @@ If you want zero plugins, manually create a table:
 
 Replace `☐` with `☑` manually as you complete tasks. Progress updates manually.
 
----
 
 ## My Recommendation
 
@@ -117,7 +114,6 @@ see so i will tell you i want to track over 20 different habits everyday, i know
 
 Alright, let's build a **multi-level habit tracking system** in Obsidian. I'll break down what's achievable and give you a realistic roadmap.
 
----
 
 ## What's Possible in Obsidian
 
@@ -132,7 +128,6 @@ Alright, let's build a **multi-level habit tracking system** in Obsidian. I'll b
 
 **The reality check:** Annual "cards" won't be as polished as Notion, but you can get monthly summary blocks that aggregate nicely.
 
----
 
 ## Recommended Tech Stack
 
@@ -142,7 +137,6 @@ Alright, let's build a **multi-level habit tracking system** in Obsidian. I'll b
 3. **Templater** → Auto-generate daily notes with all 20 habits pre-populated
 4. **Calendar** (optional) → Navigate daily notes visually
 
----
 
 ## System Architecture
 
@@ -191,7 +185,6 @@ tags: daily
 - Dataview can count completed vs total per day
 - You fill this out daily (2-3 minutes)
 
----
 
 ### 2️⃣ Weekly Level (Auto-Aggregated)
 
@@ -246,7 +239,6 @@ line:
 - Weekly completion percentage
 - Trend lines (if you're improving/declining)
 
----
 
 ### 3️⃣ Monthly Level (Auto-Aggregated)
 
@@ -300,7 +292,6 @@ SORT CompletionCount DESC
 - Which habits you're nailing vs neglecting
 - Monthly trends
 
----
 
 ### 4️⃣ Annual Level (Monthly Summary Cards)
 
@@ -350,7 +341,6 @@ SORT count(rows) DESC
 ```
 ```
 
----
 
 ## Realistic Implementation Path
 
@@ -374,7 +364,6 @@ SORT count(rows) DESC
 - Build monthly summary cards
 - Add year-over-year comparisons
 
----
 
 ## Limitations to Know Upfront
 
@@ -383,7 +372,6 @@ SORT count(rows) DESC
 3. **Query performance** → With 365 days × 20 habits, Dataview might lag slightly (fixable with caching)
 4. **Learning curve** → Dataview syntax takes ~2 hours to learn
 
----
 
 ## Do You Want:
 A. **The full template files** (ready to copy-paste)
@@ -469,7 +457,6 @@ SORT file.day ASC
 
 This shows "last 7 days" dynamically.
 
----
 
 ## Issue 2: Comments Not Allowed in Dataview
 
@@ -497,7 +484,6 @@ WHERE file.day >= date(today) - dur(7 days) AND file.day <= date(today)
 SORT file.day ASC
 ```
 
----
 
 ## Working Weekly Dashboard Template
 
@@ -550,7 +536,6 @@ Average daily completion: **<% Math.round((completedThisWeek / 160) * 100) %>%**
 
 ```
 
----
 
 ## Key Fixes Applied
 
@@ -559,7 +544,6 @@ Average daily completion: **<% Math.round((completedThisWeek / 160) * 100) %>%**
 3. ✅ Used `string(file.tasks.text)` instead of raw `text` (more reliable)
 4. ✅ Used `choice()` function for checkbox visual rendering
 
----
 
 ## Alternative: Use DataviewJS for More Control
 
@@ -586,10 +570,8 @@ Try the fixed version first. If you still get errors, paste the **exact error me
 <img width="431" height="726" alt="image" src="https://github.com/user-attachments/assets/b2080ea8-defe-4dcf-9ea4-326b7a99508e" />
 i know where you are going wrong
 my journals are here,  and here is the data points we are tracking
----
 date: 2025-11-20
 tags: daily
----
 # {{date:MMMM DD, YYYY}}
 ## Habits
 - [x] 🏃 Exercise (30 min)
@@ -619,7 +601,6 @@ can you now fix the weekly dashboard for me dear
 
 Ah, I see the issue! Your daily notes are in `2. Daily Reflection/2025/November 2025/` folder structure, not a flat "Daily Notes" folder. Let me fix the weekly dashboard:
 
----
 
 ## Working Weekly Dashboard
 
@@ -688,7 +669,6 @@ GROUP BY dummy
 ```
 ```
 
----
 
 ## Key Changes Made
 
@@ -696,7 +676,6 @@ GROUP BY dummy
 2. ✅ Used `meta(filter())` to safely check if tasks exist before accessing `.completed`
 3. ✅ All 20 habits now tracked in the habit breakdown table
 
----
 
 ## If You Still Get Errors
 
@@ -755,7 +734,6 @@ Good catch! The `meta()` function doesn't work the way I used it. We can **defin
 
 Here's the corrected version:
 
----
 
 ## Fixed Weekly Dashboard (Pure Dataview)
 
@@ -812,7 +790,6 @@ SORT file.day ASC
 ```
 ```
 
----
 
 ## What Changed
 
@@ -832,7 +809,6 @@ length(filter(file.tasks, (t) => contains(t.text, "Exercise") AND t.completed)) 
 - `length() > 0` returns `true` (✅) or `false` (❌)
 - Dataview auto-renders `true`/`false` as checkboxes
 
----
 
 ## But Honestly, Use DataviewJS Instead
 
@@ -876,7 +852,6 @@ dv.table(headers, rows);
 ```
 ```
 
----
 
 ## My Recommendation
 
@@ -896,7 +871,6 @@ Alright, let's fix this properly. Two issues:
 1. **Templater syntax isn't rendering** (the title shows raw code)
 2. **Query is looking at the wrong date** (25-12-25 instead of current week)
 
----
 
 ## Step 1: Check Your Setup
 
@@ -904,7 +878,6 @@ Alright, let's fix this properly. Two issues:
 - Settings → Community Plugins → Make sure "Templater" is installed AND enabled
 - Settings → Templater → Set a "Template folder location" (e.g., `Templates/`)
 
----
 
 ## Step 2: Corrected Weekly Dashboard Template
 
@@ -974,7 +947,6 @@ if (rows.length === 0) {
 ```
 ```
 
----
 
 ## Step 3: Create the Weekly Note PROPERLY
 
@@ -985,7 +957,6 @@ if (rows.length === 0) {
 3. Select your `Weekly Dashboard` template
 4. Templater will **replace the `<% %>` codes** with actual dates
 
----
 
 ## Alternative: Manual Version (No Templater Needed)
 
@@ -1052,7 +1023,6 @@ if (rows.length === 0) {
 ```
 ```
 
----
 
 ## Debugging Checklist
 
@@ -1096,7 +1066,6 @@ Look at this mess:
 - `25-12-25` → Dataview thinks it's `2025-12-25` ✅ (correct)
 - But the **file.day is parsing incorrectly** because your filename format is ambiguous
 
----
 
 ## The Problem
 
@@ -1104,7 +1073,6 @@ Dataview needs dates in **ISO format: YYYY-MM-DD** to work reliably.
 
 Your current format `DD-MM-YYYY` is causing date parsing chaos.
 
----
 
 ## Solution: Two Options
 
@@ -1118,7 +1086,6 @@ Change your daily note naming format from:
 1. Settings → Daily Notes → Date format: `YYYY-MM-DD`
 2. For existing files, you'll need to rename them manually or use a bulk rename tool
 
----
 
 ### Option 2: Add `date:` to Frontmatter (Easier Short-term Fix)
 
@@ -1136,7 +1103,6 @@ tags: daily
 
 The `date:` in frontmatter **overrides** Dataview's filename parsing.
 
----
 
 ## Updated Templater Daily Note Template
 
@@ -1176,7 +1142,6 @@ tags: daily
 <!-- Reflection, wins, struggles -->
 ```
 
----
 
 ## Quick Test: Add Frontmatter to One Note
 
@@ -1191,7 +1156,6 @@ tags: daily
 
 Then re-run the weekly dashboard query. If it **suddenly shows 20 tasks and checkmarks**, you've confirmed the issue.
 
----
 
 ## Updated Weekly Dashboard (Using Frontmatter Dates)
 
@@ -1260,7 +1224,6 @@ if (rows.length === 0) {
 
 **Key change:** Now using `p.date` (frontmatter) instead of `p.file.day` (filename parsing).
 
----
 
 ## Do This Now
 
@@ -1275,7 +1238,6 @@ okay so we need to fix this only today is coming correctly, atleast today is com
 
 Progress! 60% completion on 25-12-2025 is showing correctly. Now let's fix the rest of the week.
 
----
 
 ## Issue: Only One Day Has Frontmatter
 
@@ -1285,7 +1247,6 @@ The debug output showed:
 
 You need to add the `date:` frontmatter to **all your daily notes** for the week.
 
----
 
 ## Quick Fix: Bulk Add Frontmatter to This Week's Notes
 
@@ -1347,7 +1308,6 @@ tags: daily
 ---
 ```
 
----
 
 ## Updated Weekly Dashboard (Correct Date Range)
 
@@ -1414,7 +1374,6 @@ if (rows.length === 0) {
 ```
 ```
 
----
 
 ## Automation: Fix Templater for Future Notes
 
@@ -1454,7 +1413,6 @@ tags: daily
 <!-- Reflection, wins, struggles -->
 ```
 
----
 
 ## Action Plan
 
@@ -1469,7 +1427,6 @@ my goat, you are the fucking best, listen unc. I want you to help me figure out 
 
 **LET'S FUCKING GO!** 🎯 You're crushing it. Now let's make this dashboard *chef's kiss*.
 
----
 
 ## Issue 1: Weekly Dashboard Appearing in Query
 
@@ -1477,7 +1434,6 @@ my goat, you are the fucking best, listen unc. I want you to help me figure out 
 
 **Fix:** Exclude dashboard files from the query.
 
----
 
 ## Issue 2: Replace Table with Charts
 
@@ -1485,7 +1441,6 @@ You want:
 1. **Area chart** (gradient) → Tasks completed over the week
 2. **Donut chart** → Average weekly progress percentage
 
----
 
 ## Updated Weekly Dashboard Code
 
@@ -1615,7 +1570,6 @@ dv.table(headers, rows);
 ```
 ```
 
----
 
 ## But Wait... Charts Plugin Needed!
 
@@ -1626,7 +1580,6 @@ Obsidian's Dataview **doesn't render charts natively**. You need the **Obsidian 
 2. Browse → Search "**Obsidian Charts**"
 3. Install & Enable
 
----
 
 ## Alternative: Use Canvas API (No Plugin)
 
@@ -1738,7 +1691,6 @@ dv.paragraph(donutHtml);
 ```
 ```
 
----
 
 ## File Organization Fix
 
@@ -1765,7 +1717,6 @@ Then update query to:
 const folder = "2. Daily Reflection/2025";
 ```
 
----
 
 ## Which Route You Taking?
 
@@ -1795,7 +1746,6 @@ The error means `dailyStats` isn't an array when you're trying to call `.reduce(
 
 **Quick fix:** Add safety checks before using `.reduce()`.
 
----
 
 ## Fixed Code with Error Handling
 
@@ -1987,7 +1937,6 @@ dv.table(headers, rows);
 ```
 ```
 
----
 
 ## Key Changes
 
@@ -1996,7 +1945,6 @@ dv.table(headers, rows);
 3. **Added `ctx.chart` check** → Prevents duplicate chart renders
 4. **Better gradient colors** → Green gradient for completed tasks
 
----
 
 ## If Still Broken, Debug It
 
@@ -2018,7 +1966,6 @@ My bad, the charts aren't rendering. Let me fix this properly.
 
 **Issue:** Chart.js isn't loading correctly in Obsidian's environment. We need a different approach.
 
----
 
 ## Option 1: Use Obsidian Charts Plugin (EASIEST FIX)
 
@@ -2153,7 +2100,6 @@ dv.table(headers, rows);
 ```
 ```
 
----
 
 ## Option 2: Dynamic Charts WITHOUT Plugin
 
@@ -2293,7 +2239,6 @@ if (dailyStats.length === 0) {
 
 ```
 
----
 
 ## My Recommendation
 
