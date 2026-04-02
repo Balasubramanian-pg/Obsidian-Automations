@@ -5,7 +5,6 @@
 3. **View dashboard**: Open `📊 Habit Dashboard` to see your progress
 4. **Toggle views**: Click Daily/Weekly/Monthly buttons to switch perspectives
 
----
 
 ## What Each View Shows
 
@@ -13,7 +12,6 @@
 - **Weekly**: Last 12 weeks, averaged by week
 - **Monthly**: Last 12 months, averaged by month
 
----
 
 ## Troubleshooting
 
@@ -29,7 +27,6 @@
 - Streaks only count consecutive days where you completed the habit
 - For numeric habits, you must meet or exceed the target (2 hours for freelance)
 
----
 
 ## Customization Tips
 
@@ -38,7 +35,6 @@
 **Adjust targets**: Change `target` value for numeric habits
 **Change folder**: Replace `"Daily Notes"` in `getDailyNotes()` function
 
----
 
 ## Example Daily Note
 
