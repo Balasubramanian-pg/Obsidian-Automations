@@ -33,7 +33,6 @@ date: 2025-01-08
 Do not rename the section header `## Habits`.
 Do not mix other tasks into this section.
 
----
 
 ## Dashboard file
 
@@ -45,7 +44,6 @@ Habits/Habit Dashboard.md
 
 Everything below goes into **this one note**.
 
----
 
 # SECTION 1: KPI CARDS (Completed / In Progress / Pending)
 
@@ -72,7 +70,6 @@ color:
 This is a **true progress ring**.
 No fake math. No hacks.
 
----
 
 ### On Progress % (Donut)
 
@@ -115,7 +112,6 @@ color:
 
 This mirrors Tempo’s “in progress” logic.
 
----
 
 ### Pending % (Donut)
 
@@ -154,7 +150,6 @@ color:
 
 This directly feeds the **“you’re losing streaks”** card later.
 
----
 
 # SECTION 2: TODAY’S TASKS (Progress bars)
 
@@ -173,7 +168,6 @@ color: "#38BDF8"
 
 This updates instantly when you check a box.
 
----
 
 # SECTION 3: WEEKLY AREA GRAPH (Gradient-style)
 
@@ -205,7 +199,6 @@ This produces:
 
 This is **exactly what you asked for earlier**.
 
----
 
 # SECTION 4: STREAK RING (Duolingo-style)
 
@@ -245,7 +238,6 @@ color:
 
 This is psychologically powerful.
 
----
 
 # SECTION 5: “YOU’RE LOSING STREAKS” (Warning list)
 
@@ -265,7 +257,6 @@ If this list is non-empty, you are slipping.
 No chart needed.
 Text is more effective here.
 
----
 
 # SECTION 6: PER-HABIT CONSISTENCY (Optional but deadly useful)
 
@@ -282,7 +273,6 @@ Duplicate this block per habit.
 
 This is where long-term behavior change actually happens.
 
----
 
 ## Styling notes (do this once)
 
@@ -296,7 +286,6 @@ In **Style Settings** or a CSS snippet:
 
 This will get you **90% of Tempo’s look**.
 
----
 
 ## Reality check (mentor-level honesty)
 
@@ -312,7 +301,6 @@ What you have now:
 This is not a clone.
 This is a **personal system**.
 
----
 
 ## Next refinements (tell me which)
 
