@@ -311,7 +311,6 @@ You already have a clean visual system. The request boils down to four controlle
 
 No logic changes, only styling and chart configuration.
 
----
 
 ## 1. KPI cards: border and hover-only golden shadow
 
@@ -346,7 +345,6 @@ You already have a border. We will refine it and add a hover shadow that uses go
 
 This keeps the default state flat and introduces a soft lift only on hover.
 
----
 
 ## 2. Chart containers: same border and hover behavior
 
@@ -409,7 +407,6 @@ Replace your chart section HTML with this structure:
 </div>
 ```
 
----
 
 ## 3. SVG icons for chart titles in gold
 
@@ -439,7 +436,6 @@ Replace your chart section HTML with this structure:
 * Haxe SVG goes in the donut chart title.
 * No emojis anywhere.
 
----
 
 ## 4. Afacad font for the area chart tooltip
 
@@ -481,7 +477,6 @@ plugins: {
 
 This affects only the area graph as requested.
 
----
 
 ## 5. Subtle hover animation for charts
 
@@ -522,7 +517,6 @@ hoverOffset: 10
 
 This gives a gentle expansion on hover without looking playful or loud.
 
----
 
 ## What was intentionally not changed
 
@@ -664,7 +658,6 @@ Result: visually noisy, jagged edges, uneven rhythm.
 The fix is not “tuning spacing”.
 The fix is **changing the mental model** of the layout.
 
----
 
 ## New layout model (what we will do instead)
 
@@ -684,7 +677,6 @@ The fix is **changing the mental model** of the layout.
 * Boxes snap into a calm, modular system.
 * Looks intentional, not improvised.
 
----
 
 ## Drop-in replacement code (fully rewritten)
 
@@ -810,7 +802,6 @@ container.innerHTML = `
 `;
 ```
 
----
 
 ## Why this version works
 
@@ -834,7 +825,6 @@ container.innerHTML = `
 * No scale explosions.
 * Gold is used as a signal, not decoration.
 
----
 
 ## If you want to go one level further later
 
@@ -867,7 +857,6 @@ This requires two things:
 
 We will do this cleanly, without hacks.
 
----
 
 ## Sorting logic (concise explanation)
 
@@ -882,7 +871,6 @@ For each habit:
 
 This is deterministic, fast, and visually meaningful.
 
----
 
 ## UI design for the controls
 
@@ -893,7 +881,6 @@ Top-right, subtle, not screaming “dashboard”:
 * Muted by default
 * Gold accent only when active
 
----
 
 ## Revised full DataviewJS code (drop-in replacement)
 
@@ -1084,7 +1071,6 @@ container.querySelectorAll('input[name="sortMode"]').forEach(input => {
 });
 ```
 
----
 
 ## Why this revision stays clean
 
@@ -1230,7 +1216,6 @@ This is the key bug.
 
 This is a classic UI mistake. Nothing “mystical” is broken.
 
----
 
 ## Design corrections we will apply
 
@@ -1254,7 +1239,6 @@ This is a classic UI mistake. Nothing “mystical” is broken.
 * Ensure no overflow clipping.
 * Fade + lift animation, minimal.
 
----
 
 ## Fully corrected and refined code (drop-in replacement)
 
@@ -1440,7 +1424,6 @@ container.innerHTML = `
 `;
 ```
 
----
 
 ## What is now fixed, explicitly
 
@@ -1463,7 +1446,6 @@ container.innerHTML = `
 * Smooth fade and lift.
 * Shows real data, not fluff.
 
----
 
 ## Why this version feels “right”
 
@@ -1588,7 +1570,6 @@ The **100% state was intentionally not a triangle** before. That difference matt
 
 So we will restore that logic, but do it **systematically**, not ad-hoc.
 
----
 
 ## Final shape language (clean, intentional)
 
@@ -1625,7 +1606,6 @@ This preserves:
 
 No blue. No extra metaphors. One story.
 
----
 
 ## What changes in the code (high level)
 
@@ -1635,7 +1615,6 @@ No blue. No extra metaphors. One story.
 * Sorting logic stays untouched
 * Monday start stays enforced
 
----
 
 ## Drop-in corrected code (only shape logic changed, rest preserved)
 
@@ -1698,7 +1677,6 @@ data.forEach(d => {
 });
 ```
 
----
 
 ## Add these small CSS additions (once)
 
@@ -1719,7 +1697,6 @@ Place them alongside your existing styles.
 
 Your existing `.loot-triangle`, `.loot-low`, `.loot-mid` styles stay exactly the same.
 
----
 
 ## Why this feels better (and why you noticed)
 
@@ -1768,7 +1745,6 @@ This is the **full, drop-in DataviewJS block** with all requested behavior resto
 * Afacad typography
 * No regressions from earlier improvements
 
----
 
 ## Chrono Loot – Weekly Loot Collection (DataviewJS)
 
@@ -1993,7 +1969,6 @@ container.querySelectorAll('input[name="lootSort"]').forEach(radio => {
 }
 ```
 
----
 
 ## Why this is now the “final form”
 
